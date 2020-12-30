@@ -1,0 +1,137 @@
+$namespace=ElaroSolutions.DARFormula
+
+COMPILER DARFormula
+
+CHARACTERS
+  letter     = 'a'..'z'+'A'..'Z'.
+  digit      = '0'..'9'.
+  hexdigit   = digit + "ABCDEF".
+  octdigit   = '0'..'7'.
+  bindigit   = "01".
+  eol        = '\n'.
+
+TOKENS
+  variable   = (letter { letter | digit | '_' }).
+  data       = "data".
+  sin        = "sin".
+  cos        = "cos".
+  tan        = "tan".
+  asin       = "asin".
+  acos       = "acos".
+  atan       = "atan".
+  sinh       = "sinh".
+  cosh       = "cosh".
+  tanh       = "tanh".
+  log        = "log".
+  ln         = "ln".
+  sqrt       = "sqrt".
+  ceil       = "ceil".
+  floor      ="floor".
+  abs        ="abs".
+  sum        = "sum".
+  mult       = "mult".
+  number     = digit {digit} ['.' digit {digit}]
+             | "0x" hexdigit {hexdigit} ['.' hexdigit {hexdigit}]
+             | "0o" octdigit {octdigit} ['.' octdigit {octdigit}]
+             | "0b" bindigit {bindigit} ['.' bindigit {bindigit}].
+  comp       = '=' | "!=" | '>' | '<'.
+  plus       = '+'.
+  minus      = '-'.
+  muldivmod  = '*' | '/' | '%'.
+  exp        = '^'.
+  comma      = ','.
+  leftparen  = '('.
+  rightparen = ')'.
+  leftbrack  = '['.
+  rightbrack = ']'.
+
+  COMMENTS FROM '#' TO eol
+
+  IGNORE ' ' + '\t'
+
+  PRODUCTIONS
+
+  DARFormula 
+  = 
+    Formula <Node &e>
+  .
+
+  Formula <Node &e>  
+  =
+    Expression <&e>
+    {comp               
+    Expression <&e2> 
+    }  
+  .
+  
+  Expression <Node &e> 
+  = 
+    Term <&e>
+    {(
+      plus             
+      |minus           
+      )         
+      Term <&e2>   
+    }
+  . 
+  
+  Term <Node &e>     
+  = 
+    Factor <out e>
+    {muldivmod               
+    Factor <out e2>
+    }
+  .
+  
+  Factor <Node &e>    
+  = 
+    PossiblyNegatedOperand <out e>
+    {exp PossiblyNegatedOperand <out e2>
+    }
+  . 
+  
+  PossiblyNegatedOperand <Node &e> 
+  =
+    [minus               
+    ] Operand <out e>    
+  .
+
+
+  Operand <Node &e>   
+  = 
+    Quantity <out e>
+    | Func <out op> leftparen Formula <out e> rightparen 
+    | Func3 <out op> leftparen variable  comma Formula <out lim> comma Formula <out e> rightparen 
+    | leftparen Formula <out e> rightparen
+  .
+  
+  Func <UnaryFunctions &op>                        
+  =
+    (sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|log|ln|sqrt|ceil|floor|abs)
+                               
+  .
+  
+  Func3 <TernaryFunctions &op>    
+  = 
+    (sum| mult)                  
+  .
+
+  Quantity <SimpleNode &e> 
+  = 
+    Data <out e>
+    | variable                    
+    | number                    
+  .
+
+  Data <DataNode &e>      
+  =
+    data leftbrack Formula <out e1> rightbrack 
+    {
+      leftbrack Formula <out e2> rightbrack   
+    }
+    [leftbrack variable  rightbrack
+    ]           
+                             
+  .
+
+END DARFormula.
