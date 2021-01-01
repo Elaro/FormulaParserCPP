@@ -4,7 +4,8 @@
 #include <string.h>
 #include "Scanner.h"
 
-namespace ElaroSolutions::DARFormula {
+namespace ElaroSolutions {
+namespace DARFormula {
 
 
 
@@ -757,5 +758,6 @@ void Scanner::ResetPeek() {
 	pt = tokens;
 }
 
+} // namespace
 } // namespace
 

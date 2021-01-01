@@ -1,16 +1,15 @@
 #ifndef ElaroSolutions_DARFormula_NODES_H
 #define ElaroSolutions_DARFormula_NODES_H
 
+
+
+namespace ElaroSolutions::DARFormula {
+
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <random>
-#include <numbers>
 #include <cmath>
-
-namespace ElaroSolutions::DARFormula {
-
-
 
     enum NodeType
     {
@@ -39,6 +38,15 @@ namespace ElaroSolutions::DARFormula {
         virtual double getValueAt(int indexes[], std::string field)=0;
     };
 
+    class JavalikeRandomNumberGenerator
+    {
+        static std::default_random_engine _r;
+
+        public:
+        JavalikeRandomNumberGenerator(); 
+        double generateNumber(); // Generates a number in the range [0,1[
+    };
+
     class Node
     {
         public:
@@ -52,7 +60,10 @@ namespace ElaroSolutions::DARFormula {
     class SimpleNode : Node
     {
         public:
+        virtual double calcValue()=0;
+        virtual std::string toString()=0;
         NodeType getType();
+        virtual ~SimpleNode();
     };
 
     class ValueNode : SimpleNode
@@ -67,27 +78,26 @@ namespace ElaroSolutions::DARFormula {
 
     class VariableNode : SimpleNode
     {
-        static std::unordered_map<std::string, double> *_variables;
-        static std::
+        std::unordered_map<std::string, double> *_variables;
+        static JavalikeRandomNumberGenerator _rng;
         std::string _variable;
 
         public:
-        VariableNode(std::string variable);
+        VariableNode(std::string variable, std::unordered_map<std::string, double> *variables);
         double calcValue();
         std::string toString();
 
-        static void setVariables(std::unordered_map<std::string, double> *variables);
         ~VariableNode();
     };
 
     class DataNode : SimpleNode
     {
         static IDataStructure *_data;
-        std::vector<ElaroSolutions::DARFormula::Node> _indexes;
+        std::vector<ElaroSolutions::DARFormula::Node*> _indexes;
         std::string _field;
 
         public:
-        DataNode(std::vector<ElaroSolutions::DARFormula::Node> indexes, std::string field);
+        DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::string field);
         double calcValue();
         std::string toString();
 

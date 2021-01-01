@@ -1,4 +1,4 @@
-$namespace=ElaroSolutions.DARFormula
+$namespace=ElaroSolutions::DARFormula
 
 COMPILER DARFormula
 
@@ -51,87 +51,110 @@ TOKENS
 
   PRODUCTIONS
 
-  DARFormula 
+  DARFormula             (. Node *e=nullptr;.)
   = 
-    Formula <Node &e>
+    Formula <&e>
   .
 
-  Formula <Node &e>  
+  Formula <Node *e>     (. BinaryFunctions op = Undefined;
+                           Node *e2=nullptr;.)
   =
     Expression <&e>
-    {comp               
-    Expression <&e2> 
+    {comp               (. if(t->val=="=")
+                           {op = Equals;}
+                           else if(t->val=="!=")
+                           {op = Unequals;}
+                           else if(t->val=="<")
+                           {op = Lesser;}
+                           else if(t->val==">")
+                           {op = Greater;}
+                        .)
+    Expression <&e2>    (. e = BinaryNode.BinaryNodeConstructor(e,e2,op); .)
     }  
   .
   
-  Expression <Node &e> 
+  Expression <Node *e> (.BinaryFunctions op = Undefined;
+                         Node *e2=nullptr;.)
   = 
     Term <&e>
     {(
-      plus             
-      |minus           
+      plus             (. op = Plus; .)
+      |minus           (. op = Minus .)
       )         
-      Term <&e2>   
+      Term <&e2>       (. e = BinaryNode.BinaryNodeConstructor(e,e2,op); .)
     }
   . 
   
-  Term <Node &e>     
+  Term <Node *e>      (.BinaryFunctions op = Undefined; 
+                        Node *e2=nullptr;.)
   = 
-    Factor <out e>
-    {muldivmod               
-    Factor <out e2>
+    Factor <&e>
+    {muldivmod        (.if(t->val=="*")
+                           {op = Times;}
+                        else if(t->val=="/")
+                           {op = Divide;}
+                        else if(t->val=="%")
+                           {op = Modulo;}
+                      .)       
+    Factor <&e2>      (. e = BinaryNode.BinaryNodeConstructor(e,e2,op); .)
     }
   .
   
-  Factor <Node &e>    
+  Factor <Node *e>    
   = 
-    PossiblyNegatedOperand <out e>
-    {exp PossiblyNegatedOperand <out e2>
+    PossiblyNegatedOperand <&e>
+    {exp PossiblyNegatedOperand <&e2> (. e = BinaryNode.BinaryNodeConstructor(e,e2, Exponent); .)
     }
   . 
   
-  PossiblyNegatedOperand <Node &e> 
+  PossiblyNegatedOperand <Node *e>    (. bool isNegated = false; .)
   =
-    [minus               
-    ] Operand <out e>    
+    [minus                            (. isNegated = true; .)
+    ] Operand <&e>                    (. if(isNegated){e = UnaryNode.UnaryNodeConstructor(e,Negate); }.)
   .
 
 
-  Operand <Node &e>   
+  Operand <Node *e>
   = 
-    Quantity <out e>
-    | Func <out op> leftparen Formula <out e> rightparen 
-    | Func3 <out op> leftparen variable  comma Formula <out lim> comma Formula <out e> rightparen 
-    | leftparen Formula <out e> rightparen
+    Quantity <&e>
+    | (. UnaryFunctions op=Undefined;.) 
+         Func <&op> leftparen Formula <&e> rightparen (. e = UnaryNode.UnaryNodeConstructor(e,op);.)
+    | (. TernaryFunctions op=Undefined;
+         std::string countingVariable; 
+         Node *lim;.) 
+         Func3 <&op> leftparen variable (. countingVariable=t->val; .) comma Formula <&lim> comma Formula <&e> rightparen  (. e = TernaryNode.TernaryNodeConstructor(countingVariable,lim,e,op); .)
+    | leftparen Formula <&e> rightparen
   .
   
-  Func <UnaryFunctions &op>                        
+  Func <UnaryFunctions op>                        
   =
     (sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|log|ln|sqrt|ceil|floor|abs)
-                               
+                               (. op = t->kind; .)
   .
   
-  Func3 <TernaryFunctions &op>    
+  Func3 <TernaryFunctions op>    
   = 
-    (sum| mult)                  
+    (sum| mult)                (. op = t->kind;.)  
   .
 
-  Quantity <SimpleNode &e> 
+  Quantity <SimpleNode *e> 
   = 
-    Data <out e>
-    | variable                    
-    | number                    
+    Data <&e>
+    | variable                 (. e = new VariableNode(t->val).)   
+    | number                   (. e = new ValueNode((double)std::atof(t-val));.) 
   .
 
-  Data <DataNode &e>      
+  Data <DataNode *e>           (. vector<Node*> indexes = new vector<Node*>();
+                                  std::string fieldName = "";
+                                  Node *e2=nullptr; .)
   =
-    data leftbrack Formula <out e1> rightbrack 
+    data leftbrack Formula <&e> rightbrack (. indexes.push_back(e); .)
     {
-      leftbrack Formula <out e2> rightbrack   
+      leftbrack Formula <&e2> rightbrack   (. indexes.push_back(e2); .)
     }
-    [leftbrack variable  rightbrack
+    [leftbrack variable (. fieldName = t->val; .) rightbrack
     ]           
-                             
+                               (. e = new DataNode(indexes, fieldName);.)
   .
 
 END DARFormula.

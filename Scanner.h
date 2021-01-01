@@ -1,7 +1,7 @@
 
 
-#if !defined(ElaroSolutions_DARFormula_COCO_SCANNER_H__)
-#define ElaroSolutions_DARFormula_COCO_SCANNER_H__
+#if !defined(ElaroSolutions__DARFormula_COCO_SCANNER_H__)
+#define ElaroSolutions__DARFormula_COCO_SCANNER_H__
 
 #include <limits.h>
 #include <stdio.h>
@@ -32,7 +32,8 @@
 #define COCO_HEAP_BLOCK_SIZE (64*1024)
 #define COCO_CPP_NAMESPACE_SEPARATOR L':'
 
-namespace ElaroSolutions::DARFormula {
+namespace ElaroSolutions {
+namespace DARFormula {
 
 
 // string handling, wide character
@@ -256,6 +257,7 @@ public:
 
 }; // end Scanner
 
+} // namespace
 } // namespace
 
 

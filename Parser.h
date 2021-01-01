@@ -1,14 +1,14 @@
 
 
-#if !defined(ElaroSolutions_DARFormula_COCO_PARSER_H__)
-#define ElaroSolutions_DARFormula_COCO_PARSER_H__
+#if !defined(ElaroSolutions__DARFormula_COCO_PARSER_H__)
+#define ElaroSolutions__DARFormula_COCO_PARSER_H__
 
 
-
-#include "Scanner.h"
 #include "Nodes.h"
+#include "Scanner.h"
 
-namespace ElaroSolutions::DARFormula {
+namespace ElaroSolutions {
+namespace DARFormula {
 
 
 class Errors {
@@ -65,6 +65,9 @@ private:
 	int errDist;
 	int minErrDist;
 
+	Node *root;
+	std::unordered_map<std::string,double> *variables;
+
 	void SynErr(int n);
 	void Get();
 	void Expect(int n);
@@ -81,26 +84,27 @@ public:
 
 
 
-	Parser(Scanner *scanner);
+	Parser(Scanner *scanner,std::unordered_map<std::string,double> *variables);
 	~Parser();
 	void SemErr(const wchar_t* msg);
 
 	void DARFormula();
-	void Formula(Node &e);
-	void Expression(Node &e);
-	void Term(Node &e);
-	void Factor(Node &e);
-	void PossiblyNegatedOperand(Node &e);
-	void Operand(Node &e);
-	void Quantity(SimpleNode &e);
-	void Func(UnaryFunctions &op);
-	void Func3(TernaryFunctions &op);
-	void Data(DataNode &e);
+	void Formula(Node *e);
+	void Expression(Node *e);
+	void Term(Node *e);
+	void Factor(Node *e);
+	void PossiblyNegatedOperand(Node *e);
+	void Operand(Node *e);
+	void Quantity(Node *e);
+	void Func(UnaryFunctions op);
+	void Func3(TernaryFunctions op);
+	void Data(DataNode *e);
 
-	void Parse();
+	Node* Parse();
 
 }; // end Parser
 
+} // namespace
 } // namespace
 
 
