@@ -1,6 +1,8 @@
-
+#ifndef ElaroSolutions_DARFormula_PARSER_CPP
+#define ElaroSolutions_DARFormula_PARSER_CPP
 
 #include <wchar.h>
+#include <typeinfo>
 #include "Parser.h"
 #include "Scanner.h"
 
@@ -85,7 +87,7 @@ void Parser::Formula(Node *e) {
 			{op = Greater;}
 			
 			Expression(e2);
-			e = BinaryNode.BinaryNodeConstructor(e,e2,op); 
+			e = BinaryNode::BinaryNodeConstructor(e,e2,op); 
 		}
 }
 
@@ -99,10 +101,10 @@ void Parser::Expression(Node *e) {
 				op = Plus; 
 			} else {
 				Get();
-				op = Minus 
+				op = Minus; 
 			}
 			Term(e2);
-			e = BinaryNode.BinaryNodeConstructor(e,e2,op); 
+			e = BinaryNode::BinaryNodeConstructor(e,e2,op); 
 		}
 }
 
@@ -120,16 +122,17 @@ void Parser::Term(Node *e) {
 			  {op = Modulo;}
 			
 			Factor(e2);
-			e = BinaryNode.BinaryNodeConstructor(e,e2,op); 
+			e = BinaryNode::BinaryNodeConstructor(e,e2,op); 
 		}
 }
 
 void Parser::Factor(Node *e) {
+		Node *e2=nullptr;
 		PossiblyNegatedOperand(e);
 		while (la->kind == _exp) {
 			Get();
 			PossiblyNegatedOperand(e2);
-			e = BinaryNode.BinaryNodeConstructor(e,e2, Exponent); 
+			e = BinaryNode::BinaryNodeConstructor(e,e2, Exponent); 
 		}
 }
 
@@ -140,7 +143,7 @@ void Parser::PossiblyNegatedOperand(Node *e) {
 			isNegated = true; 
 		}
 		Operand(e);
-		if(isNegated){e = UnaryNode.UnaryNodeConstructor(e,Negate); }
+		if(isNegated){e = UnaryNode::UnaryNodeConstructor(e,Negate); }
 }
 
 void Parser::Operand(Node *e) {
@@ -152,12 +155,12 @@ void Parser::Operand(Node *e) {
 			Expect(_leftparen);
 			Formula(e);
 			Expect(_rightparen);
-			e = UnaryNode.UnaryNodeConstructor(e,op);
+			e = UnaryNode::UnaryNodeConstructor(e,op);
 		} else if (la->kind == _sum || la->kind == _mult) {
 			TernaryFunctions op=Undefined;
 			std::string countingVariable; 
 			Node *lim;
-			Func3(&op);
+			Func3(op);
 			Expect(_leftparen);
 			Expect(_variable);
 			countingVariable.append((const char *)t->val); 
@@ -166,7 +169,7 @@ void Parser::Operand(Node *e) {
 			Expect(_comma);
 			Formula(e);
 			Expect(_rightparen);
-			e = TernaryNode.TernaryNodeConstructor(countingVariable,lim,e,op); 
+			e = TernaryNode::TernaryNodeConstructor(countingVariable,lim,e,op); 
 		} else if (la->kind == _leftparen) {
 			Get();
 			Formula(e);
@@ -186,7 +189,7 @@ void Parser::Quantity(Node *e) {
 		} else SynErr(33);
 }
 
-void Parser::Func(UnaryFunctions op) {
+void Parser::Func(UnaryFunctions &op) {
 		switch (la->kind) {
 		case _sin: {
 			Get();
@@ -253,35 +256,35 @@ void Parser::Func(UnaryFunctions op) {
 		op = (UnaryFunctions)t->kind; 
 }
 
-void Parser::Func3(TernaryFunctions op) {
+void Parser::Func3(TernaryFunctions &op) {
 		if (la->kind == _sum) {
 			Get();
 		} else if (la->kind == _mult) {
 			Get();
 		} else SynErr(35);
-		op = t->kind;
+		op = (TernaryFunctions)t->kind;
 }
 
 void Parser::Data(DataNode *e) {
 		std::vector<Node*> *indexes = new std::vector<Node*>();
 		std::string fieldName = "";
+		Node *e1=nullptr;
 		Node *e2=nullptr; 
 		Expect(_data);
 		Expect(_leftbrack);
-		Formula(e);
+		Formula(e1);
 		Expect(_rightbrack);
-		indexes->push_back(e); 
+		indexes->push_back(e1); 
 		while (la->kind == _leftbrack) {
 			Get();
 			Formula(e2);
 			Expect(_rightbrack);
 			indexes->push_back(e2); 
 		}
-		if (la->kind == _leftbrack) {
+		if (la->kind == _colon) {
 			Get();
 			Expect(_variable);
 			fieldName.append((const char *)t->val); 
-			Expect(_rightbrack);
 		}
 		e = new DataNode(*indexes, fieldName);
 }
@@ -499,3 +502,4 @@ void Errors::Exception(const wchar_t* s) {
 } // namespace
 } // namespace
 
+#endif

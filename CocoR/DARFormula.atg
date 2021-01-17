@@ -44,6 +44,7 @@ TOKENS
   rightparen = ')'.
   leftbrack  = '['.
   rightbrack = ']'.
+  colon      = ':'.
 
   COMMENTS FROM '#' TO eol
 
@@ -152,7 +153,7 @@ TOKENS
     {
       leftbrack Formula <&e2> rightbrack   (. indexes.push_back(e2); .)
     }
-    [leftbrack variable (. fieldName = t->val; .) rightbrack
+    [colon variable (. fieldName = t->val; .)
     ]           
                                (. e = new DataNode(indexes, fieldName);.)
   .

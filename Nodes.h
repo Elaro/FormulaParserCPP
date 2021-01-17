@@ -1,15 +1,21 @@
 #ifndef ElaroSolutions_DARFormula_NODES_H
 #define ElaroSolutions_DARFormula_NODES_H
 
-
-
-namespace ElaroSolutions::DARFormula {
-
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <random>
 #include <cmath>
+#include <stdexcept>
+#include <time.h>
+
+#include "IDataStructure.h"
+#include "Exceptions.h"
+
+
+#define PRECISION 0.000005
+
+namespace ElaroSolutions::DARFormula {
 
     enum NodeType
     {
@@ -32,19 +38,16 @@ namespace ElaroSolutions::DARFormula {
         Sum=18, Mult, Undefined
     };
 
-    class IDataStructure
-    {
-        public:
-        virtual double getValueAt(int indexes[], std::string field)=0;
-    };
-
     class JavalikeRandomNumberGenerator
     {
-        static std::default_random_engine _r;
+        static std::default_random_engine *_r;
+
+        protected:
+        JavalikeRandomNumberGenerator(); 
 
         public:
-        JavalikeRandomNumberGenerator(); 
-        double generateNumber(); // Generates a number in the range [0,1[
+        static JavalikeRandomNumberGenerator * getJRNG();
+        static double generateNumber(); // Generates a number in the range [0,1[
     };
 
     class Node
@@ -57,16 +60,14 @@ namespace ElaroSolutions::DARFormula {
         virtual ~Node();
     };
 
-    class SimpleNode : Node
+    class SimpleNode : public Node
     {
         public:
-        virtual double calcValue()=0;
-        virtual std::string toString()=0;
         NodeType getType();
         virtual ~SimpleNode();
     };
 
-    class ValueNode : SimpleNode
+    class ValueNode : public SimpleNode
     {
         double _value;
 
@@ -76,10 +77,10 @@ namespace ElaroSolutions::DARFormula {
         std::string toString();
     };
 
-    class VariableNode : SimpleNode
+    class VariableNode : public SimpleNode
     {
         std::unordered_map<std::string, double> *_variables;
-        static JavalikeRandomNumberGenerator _rng;
+        static JavalikeRandomNumberGenerator * _rng;
         std::string _variable;
 
         public:
@@ -90,7 +91,7 @@ namespace ElaroSolutions::DARFormula {
         ~VariableNode();
     };
 
-    class DataNode : SimpleNode
+    class DataNode : public SimpleNode
     {
         static IDataStructure *_data;
         std::vector<ElaroSolutions::DARFormula::Node*> _indexes;
@@ -100,9 +101,31 @@ namespace ElaroSolutions::DARFormula {
         DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::string field);
         double calcValue();
         std::string toString();
+        std::vector<ElaroSolutions::DARFormula::Node*> getIndexes();
 
         static void setData(IDataStructure *data);
         ~DataNode();
+    };
+
+    class UnaryNode : public Node
+    {
+        public:
+        NodeType getType();
+        static Node* UnaryNodeConstructor(Node *operand,UnaryFunctions op);
+    };
+
+    class BinaryNode : public Node
+    {
+        public:
+        NodeType getType();
+        static Node* BinaryNodeConstructor(Node *preoperand,Node *postoperand, BinaryFunctions op);
+    };
+
+    class TernaryNode : public Node
+    {
+        public:
+        NodeType getType();
+        static Node* TernaryNodeConstructor(std::string countingVariable,Node *limit, Node *formula, TernaryFunctions op);
     };
 }
 

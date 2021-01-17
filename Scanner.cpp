@@ -1,5 +1,5 @@
-
-
+#ifndef ElaroSolutions_DARFormula_SCANNER_CPP
+#define ElaroSolutions_DARFormula_SCANNER_CPP
 #include <memory.h>
 #include <string.h>
 #include "Scanner.h"
@@ -422,13 +422,13 @@ Scanner::~Scanner() {
 void Scanner::Init() {
 	EOL    = '\n';
 	eofSym = 0;
-	maxT = 31;
-	noSym = 31;
+	maxT = 32;
+	noSym = 32;
 	int i;
 	for (i = 65; i <= 90; ++i) start.set(i, 1);
 	for (i = 97; i <= 122; ++i) start.set(i, 1);
 	for (i = 49; i <= 57; ++i) start.set(i, 2);
-	start.set(48, 28);
+	start.set(48, 29);
 	for (i = 60; i <= 62; ++i) start.set(i, 18);
 	start.set(33, 17);
 	start.set(43, 19);
@@ -442,6 +442,7 @@ void Scanner::Init() {
 	start.set(41, 25);
 	start.set(91, 26);
 	start.set(93, 27);
+	start.set(58, 28);
 		start.set(Buffer::EoF, -1);
 	keywords.set(L"data", 2);
 	keywords.set(L"sin", 3);
@@ -711,6 +712,8 @@ Token* Scanner::NextToken() {
 		case 27:
 			{t->kind = 30; break;}
 		case 28:
+			{t->kind = 31; break;}
+		case 29:
 			recEnd = pos; recKind = 20;
 			if ((ch >= L'0' && ch <= L'9')) {AddCh(); goto case_2;}
 			else if (ch == L'.') {AddCh(); goto case_3;}
@@ -761,3 +764,6 @@ void Scanner::ResetPeek() {
 } // namespace
 } // namespace
 
+
+
+#endif

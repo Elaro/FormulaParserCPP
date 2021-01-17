@@ -57,7 +57,8 @@ private:
 		_leftparen=27,
 		_rightparen=28,
 		_leftbrack=29,
-		_rightbrack=30
+		_rightbrack=30,
+		_colon=31
 	};
 	int maxT;
 
@@ -96,8 +97,8 @@ public:
 	void PossiblyNegatedOperand(Node *e);
 	void Operand(Node *e);
 	void Quantity(Node *e);
-	void Func(UnaryFunctions op);
-	void Func3(TernaryFunctions op);
+	void Func(UnaryFunctions &op);
+	void Func3(TernaryFunctions &op);
 	void Data(DataNode *e);
 
 	Node* Parse();
