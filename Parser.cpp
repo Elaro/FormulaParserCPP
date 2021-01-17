@@ -476,27 +476,35 @@ void Errors::SynErr(int line, int col, int n) {
 		}
 		break;
 	}
-	wprintf(L"-- line %d col %d: %ls\n", line, col, s);
+	wprintf(L"-- pos %d: %ls\n", col, s);
+	summaryFormatter << (L"-- pos %d: %ls\n", col, s);
+	summary.append(summaryFormatter.str());
 	coco_string_delete(s);
 	count++;
 }
 
 void Errors::Error(int line, int col, const wchar_t *s) {
-	wprintf(L"-- line %d col %d: %ls\n", line, col, s);
+	wprintf(L"-- pos %d: %ls\n", line, col, s);
+	summaryFormatter << (L"-- pos %d: %ls\n", col, s);
+	summary.append(summaryFormatter.str());
 	count++;
 }
 
 void Errors::Warning(int line, int col, const wchar_t *s) {
-	wprintf(L"-- line %d col %d: %ls\n", line, col, s);
+	wprintf(L"-- pos %d: %ls\n", col, s);
+	summaryFormatter << (L"-- pos %d: %ls\n", col, s);
+	summary.append(summaryFormatter.str());
 }
 
 void Errors::Warning(const wchar_t *s) {
 	wprintf(L"%ls\n", s);
+	summaryFormatter << (L"%ls\n", s);
+	summary.append(summaryFormatter.str());
 }
 
 void Errors::Exception(const wchar_t* s) {
 	wprintf(L"%ls", s); 
-	exit(1);
+	throw std::runtime_error((const char *)s);
 }
 
 } // namespace

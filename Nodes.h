@@ -102,6 +102,7 @@ namespace ElaroSolutions::DARFormula {
         double calcValue();
         std::string toString();
         std::vector<ElaroSolutions::DARFormula::Node*> getIndexes();
+        std::string getField();
 
         static void setData(IDataStructure *data);
         ~DataNode();

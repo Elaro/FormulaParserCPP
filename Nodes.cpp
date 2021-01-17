@@ -123,6 +123,11 @@ namespace ElaroSolutions::DARFormula {
         return _indexes;
     }
 
+    std::string DataNode::getField()
+    {
+        return _field;
+    }
+
     void DataNode::setData(IDataStructure *data)
     {
         _data = data;

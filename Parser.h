@@ -6,14 +6,19 @@
 
 #include "Nodes.h"
 #include "Scanner.h"
+#include <sstream>
 
 namespace ElaroSolutions {
 namespace DARFormula {
 
 
 class Errors {
+	std::ostringstream summaryFormatter;
+
 public:
 	int count;			// number of errors detected
+	std::string summary;
+	
 
 	Errors();
 	void SynErr(int line, int col, int n);

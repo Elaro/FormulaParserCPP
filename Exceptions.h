@@ -9,6 +9,11 @@ namespace ElaroSolutions::DARFormula{
         UnexpectedVariable(std::string what_arg) : runtime_error(what_arg.c_str()){}
     };
 
+    class BadFormula: std::runtime_error {
+        public:
+        BadFormula(std::string what_arg) : runtime_error(what_arg.c_str()){}
+    };
+
     class UninitializedVariable : std::out_of_range {
         public:
         UninitializedVariable(std::string what_arg) : out_of_range(what_arg.c_str()){}
