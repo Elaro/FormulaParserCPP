@@ -3,30 +3,36 @@
 
 #include "Nodes.h"
 
-namespace ElaroSolutions::DARFormula {
+#include <utility>
+
+namespace ElaroSolutions { namespace DARFormula {
    /* std::unordered_map<std::string, double> Node::getCurrentVariables()
     {
     }*/
 
-    std::default_random_engine * JavalikeRandomNumberGenerator::_r = nullptr;
-
-    JavalikeRandomNumberGenerator::JavalikeRandomNumberGenerator()
-    {
-        if(_r==nullptr)
-        {
-            _r = new std::default_random_engine(time(NULL));
-        }
-    }
+    JavalikeRandomNumberGenerator * JavalikeRandomNumberGenerator::_r = nullptr;
 
     double JavalikeRandomNumberGenerator::generateNumber()
     {
-        return (double)(*_r)()/(double)_r->max();
+        return (double)(*getJRNG())()/ (double) getJRNG()->max();
     }
+
+    JavalikeRandomNumberGenerator *JavalikeRandomNumberGenerator::getJRNG() {
+        if(_r == nullptr)
+        {
+            _r = new JavalikeRandomNumberGenerator();
+        }
+        return _r;
+    }
+
+    Node::~Node() noexcept {}
 
     NodeType SimpleNode::getType()
     {
         return Simple;
     }
+
+    SimpleNode::~SimpleNode() noexcept {}
 
     ValueNode::ValueNode(double value)
     {
@@ -38,14 +44,14 @@ namespace ElaroSolutions::DARFormula {
         return _value;
     }
 
-    std::string ValueNode::toString()
+    std::wstring ValueNode::toText()
     {
-        return std::to_string(_value);
+        return std::to_wstring(_value);
     }
 
-    VariableNode::VariableNode(std::string variable, std::unordered_map<std::string, double> *variables)
+    VariableNode::VariableNode(std::wstring variable, std::unordered_map<std::wstring, double> *variables)
     {
-        _variable = variable;
+        _variable = std::move(variable);
         _variables = variables;
         _rng = JavalikeRandomNumberGenerator::getJRNG();
     }
@@ -53,7 +59,7 @@ namespace ElaroSolutions::DARFormula {
     double VariableNode::calcValue()
     {
         double value=NAN;
-        if(_variable == "r")
+        if(_variable == (wchar_t *)"r")
         {
             value = _rng->generateNumber();
         }
@@ -63,16 +69,16 @@ namespace ElaroSolutions::DARFormula {
             {
                 value = _variables->at(_variable);
             }
-            catch(std::out_of_range oor)
+            catch(std::out_of_range&)
             {
-                throw new UninitializedVariable("Variable "+_variable+" has no value");
+                throw UninitializedVariable((wchar_t *)"Variable "+_variable+(wchar_t *)" has no value");
             }
         }
-        
+
         return value;
     }
 
-    std::string VariableNode::toString()
+    std::wstring VariableNode::toText()
     {
         return _variable;
     }
@@ -82,10 +88,10 @@ namespace ElaroSolutions::DARFormula {
         _variables = nullptr;
     }
 
-    DataNode::DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::string field)
+    DataNode::DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::wstring field)
     {
-        _indexes = indexes;
-        _field = field;
+        _indexes = std::move(indexes);
+        _field = std::move(field);
     }
 
     void DataNode::setData(IDataStructure *data)
@@ -97,23 +103,25 @@ namespace ElaroSolutions::DARFormula {
     {
         unsigned int indexQuantity = _indexes.size();
         int *indexAt = new int[indexQuantity];
-        for(int i=0;i<indexQuantity;++i)
+        for(unsigned int i=0;i<indexQuantity;++i)
         {
-            indexAt[i]=_indexes.at(i)->calcValue();
+            indexAt[i]=(int)_indexes.at(i)->calcValue();
         }
-        return _data->getValueAt(indexAt,_field);
+        double value=_data->getValueAt(indexAt,_field);
+        delete[] indexAt;
+        return value;
     }
 
-    std::string DataNode::toString()
+    std::wstring DataNode::toText()
     {
-        std::string result="data";
-        for(int i=0;i<_indexes.size();++i)
+        std::wstring result=(wchar_t *)"data";
+        for(auto & _indexe : _indexes)
         {
-            result.append("["+_indexes.at(i)->toString()+"]");
+            result.append((wchar_t  *)"["+_indexe->toText()+(wchar_t *)"]");
         }
-        if(_field!="")
+        if(!_field.empty())
         {
-            result.append(":"+_field);
+            result.append((wchar_t *)":"+_field);
         }
         return result;
     }
@@ -123,23 +131,43 @@ namespace ElaroSolutions::DARFormula {
         return _indexes;
     }
 
-    std::string DataNode::getField()
+    std::wstring DataNode::getField()
     {
         return _field;
     }
 
-    void DataNode::setData(IDataStructure *data)
-    {
-        _data = data;
-    }
-
     DataNode::~DataNode()
     {
-        for(int i=0;i<_indexes.size();++i)
+        for(auto & _index : _indexes)
         {
-            delete _indexes.at(i);
+            delete _index;
         }
     }
-}
+
+    NodeType UnaryNode::getType() {
+        return Unary;
+    }
+
+    Node *UnaryNode::UnaryNodeConstructor(Node *operand, UnaryFunctions op) {
+        return nullptr;
+    }
+
+    Node *BinaryNode::BinaryNodeConstructor(Node *preoperand, Node *postoperand, BinaryFunctions op) {
+        return nullptr;
+    }
+
+    NodeType BinaryNode::getType() {
+        return Binary;
+    }
+
+    NodeType TernaryNode::getType() {
+        return Ternary;
+    }
+
+    Node *
+    TernaryNode::TernaryNodeConstructor(const std::string& countingVariable, Node *limit, Node *formula, TernaryFunctions op) {
+        return nullptr;
+    }
+} }
 
 #endif

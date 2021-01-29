@@ -3,21 +3,24 @@
 
 #include <stdexcept>
 
-namespace ElaroSolutions::DARFormula{
+namespace ElaroSolutions { namespace DARFormula{
     class UnexpectedVariable : std::runtime_error {
         public:
-        UnexpectedVariable(std::string what_arg) : runtime_error(what_arg.c_str()){}
+        explicit UnexpectedVariable(const std::wstring& what_arg) : runtime_error(
+                reinterpret_cast<const char *>(what_arg.c_str())){}
     };
 
     class BadFormula: std::runtime_error {
         public:
-        BadFormula(std::string what_arg) : runtime_error(what_arg.c_str()){}
+        explicit BadFormula(const std::wstring& what_arg) : runtime_error(
+                reinterpret_cast<const char *>(what_arg.c_str())){}
     };
 
     class UninitializedVariable : std::out_of_range {
         public:
-        UninitializedVariable(std::string what_arg) : out_of_range(what_arg.c_str()){}
+        explicit UninitializedVariable(const std::wstring& what_arg) : out_of_range(
+                reinterpret_cast<const char *>(what_arg.c_str())){}
     };
-}
+} }
 
 #endif

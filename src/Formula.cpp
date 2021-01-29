@@ -4,7 +4,7 @@
 
 #include "Formula.h"
 
-namespace ElaroSolutions::DARFormula {
+namespace ElaroSolutions { namespace DARFormula {
 
 
     Formula::Formula()
@@ -14,105 +14,115 @@ namespace ElaroSolutions::DARFormula {
         _parser = nullptr;
         _root = nullptr;
         throwsExceptionFromCalcValue = false;
-        addVariable("e",2.718281828459045);
-        addVariable("pi",3.141592653589793);
-        addVariable("phi",1.618033988749895);
+        addVariable((wchar_t *)"E",2.718281828459045);
+        addVariable((wchar_t *)"PI",3.141592653589793);
+        addVariable((wchar_t *)"PHI",1.618033988749895);
     }
 
     Formula::Formula(IDataStructure *data)
     {
-        Formula();
+        _data = nullptr;
+        _scanner = nullptr;
+        _parser = nullptr;
+        _root = nullptr;
+        throwsExceptionFromCalcValue = false;
+        addVariable((wchar_t *)"E",2.718281828459045);
+        addVariable((wchar_t *)"PI",3.141592653589793);
+        addVariable((wchar_t *)"PHI",1.618033988749895);
         _data = data;
     }
 
-    Formula::Formula(IDataStructure *data, std::string permittedVariables[])
+    Formula::Formula(IDataStructure *data, std::wstring permittedVariables[])
     {
-        Formula(data);
+        _data = nullptr;
+        _scanner = nullptr;
+        _parser = nullptr;
+        _root = nullptr;
+        throwsExceptionFromCalcValue = false;
+        addVariable((wchar_t *)"E",2.718281828459045);
+        addVariable((wchar_t *)"PI",3.141592653589793);
+        addVariable((wchar_t *)"PHI",1.618033988749895);
+        _data = data;
         for(int i=0;;i++)
         {
             try{
                 addVariable(permittedVariables[i],0.0);
-            } catch (std::out_of_range oor)
+            } catch (std::out_of_range &oor)
             {
                 break;
             }
         }
     }
 
-    Formula::Formula(IDataStructure *data, std::string permittedVariables[], std::string permittedFields[])
+    Formula::Formula(IDataStructure *data, std::wstring permittedVariables[], std::wstring permittedFields[])
     {
-        Formula(data,permittedVariables);
+        _data = nullptr;
+        _scanner = nullptr;
+        _parser = nullptr;
+        _root = nullptr;
+        throwsExceptionFromCalcValue = false;
+        addVariable((wchar_t *)"E",2.718281828459045);
+        addVariable((wchar_t *)"PI",3.141592653589793);
+        addVariable((wchar_t *)"PHI",1.618033988749895);
+        _data = data;
+        for(int i=0;;i++)
+        {
+            try{
+                addVariable(permittedVariables[i],0.0);
+            } catch (std::out_of_range &oor)
+            {
+                break;
+            }
+        }
         for(int i=0;;i++)
         {
             try{
                 addField(permittedFields[i]);
-            } catch (std::out_of_range oor)
+            } catch (std::out_of_range &oor)
             {
                 break;
             }
         }
-    }
-
-    Formula::Formula(IDataStructure *data, std::string formula)
-    {
-        Formula(data);
-        setFormula(formula);
-    }
-
-    Formula::Formula(IDataStructure *data,std::string formula, std::string permittedFields[])
-    {
-        Formula(data,formula);
-        for(int i=0;;++i)
-        {
-            try
-            {
-                addField(permittedFields[i]);
-            } catch (std::out_of_range oor)
-            {
-                break;
-            }
-        }
-        checkVariablesAndFields();
     }
 
     void Formula::checkVariablesAndFields()
     {
-        checkNode(_root);
+            checkNode(_root);
     }
 
     void Formula::checkNode(Node *n)
     {
         if (typeid(*n) == typeid(VariableNode))
         {
-            if (n->toString() == "r")
+            if (n->toText().compare((wchar_t *)"r")==0)
             {
                 return;
             }
             else
             {
-                if(_allowedVariables.find(n->toString())!=_allowedVariables.end())
+                if(_allowedVariables.find(n->toText())!=_allowedVariables.end())
                 {
                    return;
                 }
-                throw new UnexpectedVariable("Unsupported variable : " + (n->toString()));
+                throw UnexpectedVariable((wchar_t *)"Unsupported variable : " + (n->toText()));
             }
         }
         else if (typeid(*n) == typeid(DataNode))
         {
-            DataNode *d = (DataNode *)n;
-            for (int i = 0; i < d->getIndexes().size(); ++i)
+            auto *d = (DataNode *)n;
+            for (unsigned int i = 0; i < d->getIndexes().size(); ++i)
             {
                 checkNode(d->getIndexes().at(i));
             }
-            if((_allowedFields.size() == 0 && d->getField() == "")||_allowedFields.find(d->getField())!=_allowedFields.end())
+            if((_allowedFields.empty() && d->getField().empty())||_allowedFields.find(d->getField())!=_allowedFields.end())
             {
                return;
             }
-            throw new UnexpectedVariable("Unsupported field : " + d->getField());
+            throw UnexpectedVariable((wchar_t *)"Unsupported field : " + d->getField());
         }
     }
 
-    std::string Formula::setFormula(std::string formula)
+    std::wstring Formula::setFormula(const std::wstring& formula)
     {
         _scanner =new Scanner((const unsigned char *)formula.c_str(),(int)formula.size());
         _parser = new Parser(_scanner,&_variables);
@@ -122,10 +132,10 @@ namespace ElaroSolutions::DARFormula {
             _root = nullptr;
             return _parser->errors->summary;
         }
-        return "";
+        return std::wstring((wchar_t *)"");
     }
 
-    void Formula::addVariable(std::string variableName, double initialValue)
+    void Formula::addVariable(const std::wstring& variableName, double initialValue)
     {
         if(_variables.count(variableName)>0)
         {
@@ -136,20 +146,48 @@ namespace ElaroSolutions::DARFormula {
         _allowedVariables.emplace(variableName);
     }
 
-    double Formula::getVariableValue(std::string variableName)
+    double Formula::getVariableValue(const std::wstring& variableName)
     {
         return _variables.at(variableName);
     }
 
-    void Formula::updateVariable(std::string variableName, double value)
+    void Formula::updateVariable(const std::wstring& variableName, double value)
     {
-        _variables.insert_or_assign(variableName,value);
+        _variables.at(variableName)=value;
     }
 
-    void Formula::addOneToVariable(std::string variableName)
+    void Formula::addOneToVariable(const std::wstring& variableName)
     {
-        _variables.insert_or_assign(variableName,_variables.at(variableName)+1);
+        _variables.at(variableName)++;
     }
-}
+
+    void Formula::setData(IDataStructure *data) {
+        _data =data;
+    }
+
+    void Formula::addField(std::wstring fieldName) {
+
+    }
+
+    double Formula::calculateValue() {
+        return 0;
+    }
+
+    void Formula::enableExceptionsOnCalculateValue() {
+        throwsExceptionFromCalcValue = true;
+    }
+
+    void Formula::disableExceptionsOnCalculateValue() {
+        throwsExceptionFromCalcValue = false;
+    }
+
+    bool Formula::exceptionsOnCalculateValueEnabled() const {
+        return throwsExceptionFromCalcValue;
+    }
+
+    std::wstring Formula::formulaToText() {
+        return _root->toText();
+    }
+} }
 
 #endif

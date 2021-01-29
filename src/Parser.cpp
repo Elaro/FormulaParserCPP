@@ -1,7 +1,7 @@
 #ifndef ElaroSolutions_DARFormula_PARSER_CPP
 #define ElaroSolutions_DARFormula_PARSER_CPP
 
-#include <wchar.h>
+#include <cwchar>
 #include <typeinfo>
 #include "Parser.h"
 #include "Scanner.h"
@@ -32,7 +32,7 @@ void Parser::Get() {
 			dummyToken->pos = t->pos;
 			dummyToken->col = t->col;
 			dummyToken->line = t->line;
-			dummyToken->next = NULL;
+			dummyToken->next = nullptr;
 			coco_string_delete(dummyToken->val);
 			dummyToken->val = coco_string_create(t->val);
 			t = dummyToken;
@@ -77,7 +77,7 @@ void Parser::Formula(Node *e) {
 		Expression(e);
 		while (la->kind == _comp) {
 			Get();
-			if(t->val==(wchar_t*)"=")
+			if(t->val ==(wchar_t*)"=")
 			{op = Equals;}
 			else if(t->val==(wchar_t*)"!=")
 			{op = Unequals;}
@@ -159,7 +159,7 @@ void Parser::Operand(Node *e) {
 		} else if (la->kind == _sum || la->kind == _mult) {
 			TernaryFunctions op=TUndefined;
 			std::string countingVariable;
-			Node *lim;
+			Node *lim=nullptr;
 			Func3(op);
 			Expect(_leftparen);
 			Expect(_variable);
@@ -182,10 +182,10 @@ void Parser::Quantity(Node *e) {
 			Data((DataNode *)e);
 		} else if (la->kind == _variable) {
 			Get();
-			e = new VariableNode(std::string((const char *)t->val),variables);
+			e = new VariableNode(t->val,variables);
 		} else if (la->kind == _number) {
 			Get();
-			e = new ValueNode((double)std::atof((const char *)t->val));
+			e = new ValueNode(std::atof((const char*)t->val));
 		} else SynErr(33);
 }
 
@@ -266,8 +266,8 @@ void Parser::Func3(TernaryFunctions &op) {
 }
 
 void Parser::Data(DataNode *e) {
-		std::vector<Node*> *indexes = new std::vector<Node*>();
-		std::string fieldName = "";
+		auto *indexes = new std::vector<Node*>();
+		std::wstring fieldName;
 		Node *e1=nullptr;
 		Node *e2=nullptr;
 		Expect(_data);
@@ -284,7 +284,7 @@ void Parser::Data(DataNode *e) {
 		if (la->kind == _colon) {
 			Get();
 			Expect(_variable);
-			fieldName.append((const char *)t->val);
+			fieldName.append(t->val);
 		}
 		e = new DataNode(*indexes, fieldName);
 }
@@ -390,7 +390,7 @@ Node* Parser::Parse() {
 	return this->root;
 }
 
-Parser::Parser(Scanner *scanner, std::unordered_map<std::string,double> *variables) {
+Parser::Parser(Scanner *scanner, std::unordered_map<std::wstring,double> *variables) {
 	maxT = 31;
 
 	ParserInitCaller<Parser>::CallInit(this);
@@ -477,29 +477,26 @@ void Errors::SynErr(int line, int col, int n) {
 		break;
 	}
 	wprintf(L"-- pos %d: %ls\n", col, s);
-	summaryFormatter << (L"-- pos %d: %ls\n", col, s);
-	summary.append(summaryFormatter.str());
+	summary.append((wchar_t *)"-- pos "+ std::to_wstring(col) +(wchar_t *)": "+s+(wchar_t *)"\n");
+
 	coco_string_delete(s);
 	count++;
 }
 
 void Errors::Error(int line, int col, const wchar_t *s) {
 	wprintf(L"-- pos %d: %ls\n", line, col, s);
-	summaryFormatter << (L"-- pos %d: %ls\n", col, s);
-	summary.append(summaryFormatter.str());
+    summary.append((wchar_t *)"-- pos "+ std::to_wstring(col) +(wchar_t *)": "+s+(wchar_t *)"\n");
 	count++;
 }
 
 void Errors::Warning(int line, int col, const wchar_t *s) {
 	wprintf(L"-- pos %d: %ls\n", col, s);
-	summaryFormatter << (L"-- pos %d: %ls\n", col, s);
-	summary.append(summaryFormatter.str());
+    summary.append((wchar_t *)"-- pos "+ std::to_wstring(col) +(wchar_t *)": "+s+(wchar_t *)"\n");
 }
 
 void Errors::Warning(const wchar_t *s) {
 	wprintf(L"%ls\n", s);
-	summaryFormatter << (L"%ls\n", s);
-	summary.append(summaryFormatter.str());
+    summary.append(s).append((wchar_t *)"\n");
 }
 
 void Errors::Exception(const wchar_t* s) {

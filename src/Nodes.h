@@ -15,7 +15,7 @@
 
 #define PRECISION 0.000005
 
-namespace ElaroSolutions::DARFormula {
+namespace ElaroSolutions { namespace DARFormula {
 
     enum NodeType
     {
@@ -37,12 +37,9 @@ namespace ElaroSolutions::DARFormula {
         Sum=18, Mult, TUndefined
     };
 
-    class JavalikeRandomNumberGenerator
+    class JavalikeRandomNumberGenerator : std::default_random_engine
     {
-        static std::default_random_engine *_r;
-
-        protected:
-        JavalikeRandomNumberGenerator();
+        static JavalikeRandomNumberGenerator *_r;
 
         public:
         static JavalikeRandomNumberGenerator * getJRNG();
@@ -53,17 +50,17 @@ namespace ElaroSolutions::DARFormula {
     {
         public:
         virtual double calcValue()=0;
-        virtual std::string toString()=0;
+        virtual std::wstring toText()=0;
         virtual NodeType getType()=0;
       //  std::unordered_map<std::string,double> getCurrentVariables();
-        virtual ~Node();
+        virtual ~Node() = 0;
     };
 
     class SimpleNode : public Node
     {
         public:
-        NodeType getType();
-        virtual ~SimpleNode();
+        NodeType getType() override;
+        ~SimpleNode() override = 0;
     };
 
     class ValueNode : public SimpleNode
@@ -71,62 +68,67 @@ namespace ElaroSolutions::DARFormula {
         double _value;
 
         public:
-        ValueNode(double value);
-        double calcValue();
-        std::string toString();
+        explicit ValueNode(double value);
+        double calcValue() override;
+        std::wstring toText() override;
     };
 
     class VariableNode : public SimpleNode
     {
-        std::unordered_map<std::string, double> *_variables;
+        std::unordered_map<std::wstring, double> *_variables;
         static JavalikeRandomNumberGenerator * _rng;
-        std::string _variable;
+        std::wstring _variable;
 
         public:
-        VariableNode(std::string variable, std::unordered_map<std::string, double> *variables);
-        double calcValue();
-        std::string toString();
+        VariableNode(std::wstring variable, std::unordered_map<std::wstring, double> *variables);
+        double calcValue() override;
+        std::wstring toText() override;
 
-        ~VariableNode();
+        ~VariableNode() override;
     };
 
     class DataNode : public SimpleNode
     {
-        static IDataStructure *_data;
+        IDataStructure *_data{};
         std::vector<ElaroSolutions::DARFormula::Node*> _indexes;
-        std::string _field;
+        std::wstring _field;
 
         public:
-        DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::string field);
-        double calcValue();
-        std::string toString();
+        DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::wstring field);
+        double calcValue() override;
+        std::wstring toText() override;
         std::vector<ElaroSolutions::DARFormula::Node*> getIndexes();
-        std::string getField();
+        std::wstring getField();
 
-        static void setData(IDataStructure *data);
-        ~DataNode();
+        void setData(IDataStructure *data);
+        ~DataNode() override;
     };
 
     class UnaryNode : public Node
     {
+        Node *_operand;
         public:
-        NodeType getType();
+        NodeType getType() override;
         static Node* UnaryNodeConstructor(Node *operand,UnaryFunctions op);
     };
 
     class BinaryNode : public Node
     {
+        Node *_preoperand, *_postoperand;
+
         public:
-        NodeType getType();
+        NodeType getType() override;
         static Node* BinaryNodeConstructor(Node *preoperand,Node *postoperand, BinaryFunctions op);
     };
 
     class TernaryNode : public Node
     {
+        VariableNode *_counter;
+        Node *_limit, *_formula;
         public:
-        NodeType getType();
-        static Node* TernaryNodeConstructor(std::string countingVariable,Node *limit, Node *formula, TernaryFunctions op);
+        NodeType getType() override;
+        static Node* TernaryNodeConstructor(const std::string& countingVariable,Node *limit, Node *formula, TernaryFunctions op);
     };
-}
+} }
 
 #endif

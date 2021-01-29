@@ -13,12 +13,11 @@ namespace DARFormula {
 
 
 class Errors {
-	std::ostringstream summaryFormatter;
 
 public:
 	int count;			// number of errors detected
-	std::string summary;
-	
+	std::wstring summary;
+
 
 	Errors();
 	void SynErr(int line, int col, int n);
@@ -72,7 +71,7 @@ private:
 	int minErrDist;
 
 	Node *root;
-	std::unordered_map<std::string,double> *variables;
+	std::unordered_map<std::wstring,double> *variables;
 
 	void SynErr(int n);
 	void Get();
@@ -90,7 +89,7 @@ public:
 
 
 
-	Parser(Scanner *scanner,std::unordered_map<std::string,double> *variables);
+	Parser(Scanner *scanner,std::unordered_map<std::wstring,double> *variables);
 	~Parser();
 	void SemErr(const wchar_t* msg);
 
@@ -115,4 +114,3 @@ public:
 
 
 #endif
-
