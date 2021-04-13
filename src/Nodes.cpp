@@ -82,7 +82,15 @@ namespace ElaroSolutions { namespace DARFormula {
         _variables = nullptr;
     }
 
-    DataNode::DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::wstring field)
+        VariableNode::VariableNode(std::wstring variable) {
+            _variable = std::move(variable);
+        }
+
+        void VariableNode::setVariables(std::unordered_map<std::wstring, double> *variables) {
+            _variables = variables;
+        }
+
+        DataNode::DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::wstring field)
     {
         _indexes = std::move(indexes);
         _field = std::move(field);

@@ -2,8 +2,7 @@
 #define ElaroSolutions_DARFormula_FORMULA_H
 
 #include "Nodes.h"
-#include "../CocoR/Parser.h.old"
-#include "../CocoR/Scanner.h.old"
+#include "Parser.h"
 #include "Exceptions.h"
 
 #include <typeinfo>
@@ -19,8 +18,6 @@ namespace ElaroSolutions { namespace DARFormula {
         std::set<std::wstring> _allowedVariables;
         std::set<std::wstring> _allowedFields;
         IDataStructure *_data;
-        Scanner *_scanner;
-        Parser *_parser;
         Node *_root;
         bool throwsExceptionFromCalcValue;
         void checkVariablesAndFields() noexcept(false);

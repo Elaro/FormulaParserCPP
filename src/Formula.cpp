@@ -10,8 +10,6 @@ namespace ElaroSolutions { namespace DARFormula {
     Formula::Formula()
     {
         _data = nullptr;
-        _scanner = nullptr;
-        _parser = nullptr;
         _root = nullptr;
         throwsExceptionFromCalcValue = false;
         addVariable((wchar_t *)"E",2.718281828459045);
@@ -22,8 +20,6 @@ namespace ElaroSolutions { namespace DARFormula {
     Formula::Formula(std::wstring permittedVariables[])
     {
         _data = nullptr;
-        _scanner = nullptr;
-        _parser = nullptr;
         _root = nullptr;
         throwsExceptionFromCalcValue = false;
         addVariable((wchar_t *)"E",2.718281828459045);
@@ -43,8 +39,6 @@ namespace ElaroSolutions { namespace DARFormula {
     Formula::Formula(std::wstring permittedVariables[], std::wstring permittedFields[])
     {
         _data = nullptr;
-        _scanner = nullptr;
-        _parser = nullptr;
         _root = nullptr;
         throwsExceptionFromCalcValue = false;
         addVariable((wchar_t *)"E",2.718281828459045);
@@ -109,21 +103,10 @@ namespace ElaroSolutions { namespace DARFormula {
 
     void Formula::setFormula(const std::wstring& formula)
     {
-        _scanner =new Scanner((const unsigned char *)formula.c_str(),(int)formula.size());
-        _parser = new Parser(_scanner,&_variables);
         delete _root;
-
-        _root = _parser->Parse();
-        if(_parser->errors->count>0)
-        {
-            delete _root;
-            throw BadFormula(_parser->errors->summary);
-        } else
-        {
-            delete _scanner;
-            delete _parser;
-        }
+        _root = Parser::Parse(Parser::Tokenize(formula));
         checkVariablesAndFields();
+        setVariables(_root);
     }
 
     void Formula::setFormula(const std::string &formula) {

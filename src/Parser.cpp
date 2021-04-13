@@ -5,7 +5,7 @@
 #include "Parser.h"
 
 namespace ElaroSolutions{namespace DARFormula{
-    std::vector<Token> ElaroSolutions::DARFormula::Parser::Tokenize(std::wstring &formula) {
+    std::vector<Token> ElaroSolutions::DARFormula::Parser::Tokenize(const std::wstring &formula) {
         std::vector<Token> formulaTokens;
         if(formula.empty())
         {
@@ -79,16 +79,16 @@ namespace ElaroSolutions{namespace DARFormula{
         return formulaTokens;
     }
 
-        Node *Parser::Parse(std::vector<Token> &tokens) {
+        Node *Parser::Parse(std::vector<Token> tokens, std::unordered_map<std::wstring, double>* variables) {
             Node* root= nullptr;
-            parseFormula(root, tokens.begin());
+            parseFormula(root, tokens.begin(), variables);
             return root;
         }
 
-        void Parser::parseFormula(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it) {
+        void Parser::parseFormula(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables) {
             Node* e2= nullptr;
             BinaryFunctions op = BUndefined;
-            parseExpression(e,it);
+            parseExpression(e,it, variables);
             while(it->getValue()==(wchar_t *)"=" ||it->getValue()==(wchar_t *)"!=" ||it->getValue()==(wchar_t *)"<" ||it->getValue()==(wchar_t *)">")
             {
                 if(it->getValue()==(wchar_t *)"=")
@@ -112,15 +112,15 @@ namespace ElaroSolutions{namespace DARFormula{
 
                 }
                 ++it;
-                parseExpression(e2,it);
+                parseExpression(e2,it,variables);
                 e= BinaryNode::BinaryNodeConstructor(e,e2,op);
             }
         }
 
-        void Parser::parseExpression(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it) {
+        void Parser::parseExpression(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables) {
             Node* e2=nullptr;
             BinaryFunctions op = BUndefined;
-            parseTerm(e,it);
+            parseTerm(e,it,variables);
             while(it->getValue()==(wchar_t *)"+" || it->getValue()==(wchar_t *)"-")
             {
                 if(it->getValue()==(wchar_t *)"+")
@@ -132,15 +132,15 @@ namespace ElaroSolutions{namespace DARFormula{
                     op = Minus;
                 }
                 ++it;
-                parseTerm(e2,it);
+                parseTerm(e2,it,variables);
                 e = BinaryNode::BinaryNodeConstructor(e,e2,op);
             }
         }
 
-        void Parser::parseTerm(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it) {
+        void Parser::parseTerm(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables) {
             Node* e2=nullptr;
             BinaryFunctions op = BUndefined;
-            parseFactor(e,it);
+            parseFactor(e,it,variables);
             while(it->getValue()==(wchar_t *)"*" || it->getValue()==(wchar_t *)"/" || it->getValue()==(wchar_t *)"%")
             {
                 if(it->getValue()==(wchar_t *)"*")
@@ -156,31 +156,31 @@ namespace ElaroSolutions{namespace DARFormula{
                     op = Modulo;
                 }
                 ++it;
-                parseFactor(e2,it);
+                parseFactor(e2,it,variables);
                 e = BinaryNode::BinaryNodeConstructor(e,e2,op);
             }
 
         }
 
-        void Parser::parseFactor(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it) {
+        void Parser::parseFactor(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables) {
             Node* e2 = nullptr;
-            parsePossiblyNegatedOperand(e,it);
+            parsePossiblyNegatedOperand(e,it,variables);
             while(it->getValue()==(wchar_t *)"^")
             {
                 ++it;
-                parsePossiblyNegatedOperand(e2,it);
+                parsePossiblyNegatedOperand(e2,it,variables);
                 e= BinaryNode::BinaryNodeConstructor(e,e2,Exponent);
             }
         }
 
-        void Parser::parsePossiblyNegatedOperand(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it) {
+        void Parser::parsePossiblyNegatedOperand(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables) {
             bool isNegated = false;
             if(it->getValue()==(wchar_t *)"-")
             {
                 isNegated=true;
                 ++it;
             }
-            parseOperand(e,it);
+            parseOperand(e,it,variables);
             if(isNegated)
             {
                 e=UnaryNode::UnaryNodeConstructor(e,Negate);
@@ -188,10 +188,10 @@ namespace ElaroSolutions{namespace DARFormula{
 
         }
 
-        void Parser::parseOperand(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it) {
+        void Parser::parseOperand(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables) {
             if(it->getLevel()==0 || it->getValue()==(wchar_t *)"data")
             {
-                parseQuantity(e,it);
+                parseQuantity(e,it,variables);
             }
             else if(it->getValue()==(wchar_t *)"sum" || it->getValue()==(wchar_t *)"mult")
             {
@@ -207,44 +207,92 @@ namespace ElaroSolutions{namespace DARFormula{
                     op = Mult;
                 }
                 ++it;
-                if(it->getValue()==(wchar_t *)"(")
-                {}
-                else
-                    throw BadFormula((wchar_t *)"Missing left parentheses after ternary function");
+                if(it->getValue()!=(wchar_t *)"(")
+                {throw BadFormula((wchar_t *)"Missing left parentheses after ternary function");}
                 ++it;
-                if (it->getLevel() == 0 && isdigit(it->getValue().at(0)))
-                {}
-                else
-                    throw BadFormula((wchar_t *) "Number instead of variable in ternary function");
+                if (it->getLevel() != 0 || isdigit(it->getValue().at(0)))
+                {throw BadFormula((wchar_t *) "Number instead of variable in ternary function");}
                 countingVariable = it->getValue();
                 ++it;
-                if(it->getValue()==(wchar_t *)",")
-                {}
-                else
-                    throw BadFormula((wchar_t *)"Missing comma between counting variable and limit expression");
+                if(it->getValue()!=(wchar_t *)",")
+                {throw BadFormula((wchar_t *)"Missing comma between counting variable and limit expression");}
                 ++it;
-                parseFormula(limit,it);
+                parseFormula(limit,it,variables);
                 ++it;
-                if(it->getValue()==(wchar_t *)",")
-                {}
-                else
-                    throw BadFormula((wchar_t *)"Missing comma between limit expression and evaluated expression");
+                if(it->getValue()!=(wchar_t *)",")
+                {throw BadFormula((wchar_t *)"Missing comma between limit expression and evaluated expression");}
                 ++it;
-                parseFormula(e,it);
+                parseFormula(e,it,variables);
                 e = TernaryNode::TernaryNodeConstructor(countingVariable,limit,e,op);
             }
-            else if(it->getLevel()==1)
-            {}
+            else if(it->getLevel()==1) {
+                UnaryFunctions op = UUndefined;
+                Node* e2 = nullptr;
+                if (it->getValue() == (wchar_t *) "sqrt") { op=Sqrt;}
+                else if (it->getValue() == (wchar_t *) "log") { op=Log;}
+                else if (it->getValue() == (wchar_t *) "ln") { op=Ln;}
+                else if (it->getValue() == (wchar_t *) "sin") { op=Sin;}
+                else if (it->getValue() == (wchar_t *) "cos") {op=Cos;}
+                else if (it->getValue() == (wchar_t *) "tan") {op=Tan;}
+                else if(it->getValue()==(wchar_t *)"sinh"){op=Sinh;}
+                else if(it->getValue()==(wchar_t *)"cosh"){op=Cosh;}
+                else if(it->getValue()==(wchar_t *)"tanh") {op=Tanh;}
+                else if(it->getValue()==(wchar_t *)"asin") {op=Asin;}
+                else if(it->getValue()==(wchar_t *)"acos"){op=Acos;}
+                else if(it->getValue()==(wchar_t *)"atan"){op=Atan;}
+                else if(it->getValue()==(wchar_t *)"abs"){op=Abs;}
+                else if(it->getValue()==(wchar_t *)"ceil"){op=Ceil;}
+                else if(it->getValue()==(wchar_t *)"floor"){op=Floor;}
+                ++it;
+                if(it->getValue()!=(wchar_t *)"(")
+                {
+                    throw BadFormula((wchar_t *)"Missing left parentheses after function");
+                }
+                ++it;
+                parseFormula(e2,it,variables);
+                ++it;
+                if(it->getValue()!=(wchar_t *)")")
+                {
+                    throw BadFormula((wchar_t *)"Missing right parentheses after function");
+                }
+                e = UnaryNode::UnaryNodeConstructor(e2,op);
+            }
+            else if(it->getValue()==(wchar_t *)"(")
+            {
+                Node* e2= nullptr;
+                ++it;
+                parseFormula(e2,it,variables);
+                ++it;
+                if(it->getValue()!=(wchar_t *)")")
+                {
+                    throw BadFormula((wchar_t *)"Missing right parentheses");
+                }
+                e = e2;
+            }
             else
                 throw BadFormula((wchar_t *)"Unexpected token");
         }
 
-        void Parser::parseQuantity(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it) {
-
+        void Parser::parseQuantity(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables) {
+            if(it->getValue()==(wchar_t *)"data")
+            {
+                parseData(e,it,variables);
+            }
+            else if(it->getLevel() == 0)
+            {
+                if(it->getValue() == (wchar_t *)"r")
+                {
+                    e = new RandomVariableNode();
+                } else if(isdigit(it->getValue().at(0)))
+                {
+                    e = new ValueNode(stod(it->getValue()));
+                } else
+                    e = new VariableNode(it->getValue(),variables);
+            }
         }
 
 
-        void Parser::parseData(Node *&e, std::iterator<std::vector<Token>,Token> &it) {
+        void Parser::parseData(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token>> it, std::unordered_map<std::wstring, double>* variables) {
 
         }
 
