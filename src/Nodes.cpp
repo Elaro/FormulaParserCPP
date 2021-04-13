@@ -14,7 +14,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
     double JavalikeRandomNumberGenerator::generateNumber()
     {
-        return (double)(*getJRNG())()/ (double) getJRNG()->max();
+        return (double)(*getJRNG())()/ (double) (JavalikeRandomNumberGenerator::max()+1.0);
     }
 
     JavalikeRandomNumberGenerator *JavalikeRandomNumberGenerator::getJRNG() {
@@ -25,14 +25,14 @@ namespace ElaroSolutions { namespace DARFormula {
         return _r;
     }
 
-    Node::~Node() noexcept {}
+    Node::~Node() = default;
 
     NodeType SimpleNode::getType()
     {
         return Simple;
     }
 
-    SimpleNode::~SimpleNode() noexcept {}
+    SimpleNode::~SimpleNode() = default;
 
     ValueNode::ValueNode(double value)
     {
@@ -53,27 +53,21 @@ namespace ElaroSolutions { namespace DARFormula {
     {
         _variable = std::move(variable);
         _variables = variables;
-        _rng = JavalikeRandomNumberGenerator::getJRNG();
     }
 
     double VariableNode::calcValue()
     {
         double value=NAN;
-        if(_variable == (wchar_t *)"r")
-        {
-            value = _rng->generateNumber();
-        }
-        else
-        {
             try
             {
                 value = _variables->at(_variable);
             }
             catch(std::out_of_range&)
             {
-                throw UninitializedVariable((wchar_t *)"Variable "+_variable+(wchar_t *)" has no value");
+                std::wstring error= std::wstring().append((wchar_t *)"Variable ").append(_variable).
+                        append((wchar_t *)" has no value");
+                throw UninitializedVariable(error);
             }
-        }
 
         return value;
     }
@@ -92,6 +86,7 @@ namespace ElaroSolutions { namespace DARFormula {
     {
         _indexes = std::move(indexes);
         _field = std::move(field);
+        _indexTable =new int[_indexes.size()];
     }
 
     void DataNode::setData(IDataStructure *data)
@@ -102,13 +97,13 @@ namespace ElaroSolutions { namespace DARFormula {
     double DataNode::calcValue()
     {
         unsigned int indexQuantity = _indexes.size();
-        int *indexAt = new int[indexQuantity];
+
         for(unsigned int i=0;i<indexQuantity;++i)
         {
-            indexAt[i]=(int)_indexes.at(i)->calcValue();
+            _indexTable[i]=(int)std::round(_indexes.at(i)->calcValue());
         }
-        double value=_data->getValueAt(indexAt,_field);
-        delete[] indexAt;
+        double value=_data->getValueAt(_indexTable,_field);
+
         return value;
     }
 
@@ -142,6 +137,7 @@ namespace ElaroSolutions { namespace DARFormula {
         {
             delete _index;
         }
+        delete[] _indexTable;
     }
 
     NodeType UnaryNode::getType() {
@@ -164,10 +160,21 @@ namespace ElaroSolutions { namespace DARFormula {
         return Ternary;
     }
 
-    Node *
-    TernaryNode::TernaryNodeConstructor(const std::string& countingVariable, Node *limit, Node *formula, TernaryFunctions op) {
+    Node *TernaryNode::TernaryNodeConstructor(const std::wstring& countingVariable, Node *limit, Node *formula, TernaryFunctions op) {
         return nullptr;
     }
-} }
+
+        std::wstring RandomVariableNode::toText() {
+            return std::wstring((wchar_t *)"r");
+        }
+
+        double RandomVariableNode::calcValue() {
+            return _rng->generateNumber();
+        }
+
+        RandomVariableNode::RandomVariableNode() {
+            _rng = JavalikeRandomNumberGenerator::getJRNG();
+        }
+    } }
 
 #endif

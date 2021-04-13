@@ -2,12 +2,14 @@
 #define ElaroSolutions_DARFormula_FORMULA_H
 
 #include "Nodes.h"
-#include "Parser.h"
-#include "Scanner.h"
+#include "../CocoR/Parser.h.old"
+#include "../CocoR/Scanner.h.old"
 #include "Exceptions.h"
 
 #include <typeinfo>
 #include <set>
+#include <locale>
+#include <codecvt>
 
 namespace ElaroSolutions { namespace DARFormula {
 
@@ -21,26 +23,27 @@ namespace ElaroSolutions { namespace DARFormula {
         Parser *_parser;
         Node *_root;
         bool throwsExceptionFromCalcValue;
-        void checkVariablesAndFields();
-        void checkNode(Node *n);
+        void checkVariablesAndFields() noexcept(false);
+        void checkNode(Node *n) noexcept(false);
 
         public:
         Formula();
-        explicit Formula(IDataStructure *data);
-        Formula(IDataStructure *data, std::wstring permittedVariables[]);
-        Formula(IDataStructure *data, std::wstring permittedVariables[], std::wstring permittedFields[]);
-        std::wstring setFormula(const std::wstring& formula);
+        explicit Formula(std::wstring permittedVariables[]);
+        Formula(std::wstring permittedVariables[], std::wstring permittedFields[]);
+        void setFormula(const std::wstring& formula) noexcept(false);
+        void setFormula(const std::string& formula);
         void addVariable(const std::wstring& variableName, double initialValue);
-        double getVariableValue(const std::wstring& variableName);
+        double getVariableValue(const std::wstring& variableName) noexcept(false);
         void updateVariable(const std::wstring& variableName, double value);
         void addOneToVariable(const std::wstring& variableName);
         void setData(IDataStructure *data);
-        void addField(std::wstring fieldName);
+        void addField(const std::wstring& fieldName);
         double calculateValue();
         void enableExceptionsOnCalculateValue();
         void disableExceptionsOnCalculateValue();
         bool exceptionsOnCalculateValueEnabled() const;
         std::wstring formulaToText();
+        ~Formula();
     };
 } }
 

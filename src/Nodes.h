@@ -7,7 +7,7 @@
 #include <random>
 #include <cmath>
 #include <stdexcept>
-#include <time.h>
+#include <ctime>
 
 #include "IDataStructure.h"
 #include "Exceptions.h"
@@ -40,6 +40,7 @@ namespace ElaroSolutions { namespace DARFormula {
     class JavalikeRandomNumberGenerator : std::default_random_engine
     {
         static JavalikeRandomNumberGenerator *_r;
+        explicit JavalikeRandomNumberGenerator() : std::default_random_engine (time(nullptr)){}
 
         public:
         static JavalikeRandomNumberGenerator * getJRNG();
@@ -76,7 +77,6 @@ namespace ElaroSolutions { namespace DARFormula {
     class VariableNode : public SimpleNode
     {
         std::unordered_map<std::wstring, double> *_variables;
-        static JavalikeRandomNumberGenerator * _rng;
         std::wstring _variable;
 
         public:
@@ -87,10 +87,21 @@ namespace ElaroSolutions { namespace DARFormula {
         ~VariableNode() override;
     };
 
+    class RandomVariableNode : public SimpleNode
+    {
+        JavalikeRandomNumberGenerator * _rng;
+
+    public:
+        RandomVariableNode();
+        double calcValue() override;
+        std::wstring toText() override;
+    };
+
     class DataNode : public SimpleNode
     {
         IDataStructure *_data{};
         std::vector<ElaroSolutions::DARFormula::Node*> _indexes;
+        int * _indexTable;
         std::wstring _field;
 
         public:
@@ -127,7 +138,7 @@ namespace ElaroSolutions { namespace DARFormula {
         Node *_limit, *_formula;
         public:
         NodeType getType() override;
-        static Node* TernaryNodeConstructor(const std::string& countingVariable,Node *limit, Node *formula, TernaryFunctions op);
+        static Node* TernaryNodeConstructor(const std::wstring& countingVariable,Node *limit, Node *formula, TernaryFunctions op);
     };
 } }
 
