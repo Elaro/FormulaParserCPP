@@ -44,12 +44,12 @@ namespace ElaroSolutions { namespace DARFormula {
         return _value;
     }
 
-    std::wstring ValueNode::toText()
+    std::string ValueNode::toText()
     {
-        return std::to_wstring(_value);
+        return std::to_string(_value);
     }
 
-    VariableNode::VariableNode(std::wstring variable, std::unordered_map<std::wstring, double> *variables)
+    VariableNode::VariableNode(std::string variable, std::unordered_map<std::string, double> *variables)
     {
         _variable = std::move(variable);
         _variables = variables;
@@ -64,15 +64,15 @@ namespace ElaroSolutions { namespace DARFormula {
             }
             catch(std::out_of_range&)
             {
-                std::wstring error= std::wstring().append((wchar_t *)"Variable ").append(_variable).
-                        append((wchar_t *)" has no value");
+                std::string error= std::string().append("Variable ").append(_variable).
+                        append(" has no value");
                 throw UninitializedVariable(error);
             }
 
         return value;
     }
 
-    std::wstring VariableNode::toText()
+    std::string VariableNode::toText()
     {
         return _variable;
     }
@@ -82,7 +82,7 @@ namespace ElaroSolutions { namespace DARFormula {
         _variables = nullptr;
     }
 
-    DataNode::DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::wstring field)
+    DataNode::DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::string field)
     {
         _indexes = std::move(indexes);
         _field = std::move(field);
@@ -107,16 +107,16 @@ namespace ElaroSolutions { namespace DARFormula {
         return value;
     }
 
-    std::wstring DataNode::toText()
+    std::string DataNode::toText()
     {
-        std::wstring result=(wchar_t *)"data";
+        std::string result="data";
         for(auto & _indexe : _indexes)
         {
-            result.append((wchar_t  *)"["+_indexe->toText()+(wchar_t *)"]");
+            result.append("["+_indexe->toText()+"]");
         }
         if(!_field.empty())
         {
-            result.append((wchar_t *)":"+_field);
+            result.append(":"+_field);
         }
         return result;
     }
@@ -126,7 +126,7 @@ namespace ElaroSolutions { namespace DARFormula {
         return _indexes;
     }
 
-    std::wstring DataNode::getField()
+    std::string DataNode::getField()
     {
         return _field;
     }
@@ -148,7 +148,12 @@ namespace ElaroSolutions { namespace DARFormula {
         return nullptr;
     }
 
-    Node *BinaryNode::BinaryNodeConstructor(Node *preoperand, Node *postoperand, BinaryFunctions op) {
+        Node *UnaryNode::getOperand()
+        {
+            return _operand;
+        }
+
+        Node *BinaryNode::BinaryNodeConstructor(Node *preoperand, Node *postoperand, BinaryFunctions op) {
         return nullptr;
     }
 
@@ -156,25 +161,50 @@ namespace ElaroSolutions { namespace DARFormula {
         return Binary;
     }
 
-    NodeType TernaryNode::getType() {
+        Node *BinaryNode::getPreOperand()
+        {
+            return _preoperand;
+        }
+
+        Node *BinaryNode::getPostOperand()
+        {
+            return _postoperand;
+        }
+
+        NodeType TernaryNode::getType() {
         return Ternary;
     }
 
-    Node *TernaryNode::TernaryNodeConstructor(const std::wstring& countingVariable, Node *limit, Node *formula, TernaryFunctions op) {
+    Node *TernaryNode::TernaryNodeConstructor(const std::string& countingVariable, Node *limit, Node *formula, TernaryFunctions op, std::unordered_map<std::string,double> *variables) {
         return nullptr;
     }
 
-        std::wstring RandomVariableNode::toText() {
-            return std::wstring((wchar_t *)"r");
+    VariableNode *TernaryNode::getCounter()
+    {
+        return _counter;
+    }
+
+        Node *TernaryNode::getLimit()
+        {
+            return _limit;
         }
 
-        double RandomVariableNode::calcValue() {
-            return _rng->generateNumber();
+        Node *TernaryNode::getFormula()
+        {
+            return _formula;
         }
 
-        RandomVariableNode::RandomVariableNode() {
-            _rng = JavalikeRandomNumberGenerator::getJRNG();
-        }
+        std::string RandomVariableNode::toText() {
+        return std::string("r");
+    }
+
+    double RandomVariableNode::calcValue() {
+        return _rng->generateNumber();
+    }
+
+    RandomVariableNode::RandomVariableNode() {
+        _rng = JavalikeRandomNumberGenerator::getJRNG();
+    }
     } }
 
 #endif

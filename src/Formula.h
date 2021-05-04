@@ -2,8 +2,7 @@
 #define ElaroSolutions_DARFormula_FORMULA_H
 
 #include "Nodes.h"
-#include "../CocoR/Parser.h.old"
-#include "../CocoR/Scanner.h.old"
+#include "Parser.h"
 #include "Exceptions.h"
 
 #include <typeinfo>
@@ -15,34 +14,33 @@ namespace ElaroSolutions { namespace DARFormula {
 
     class Formula
     {
-        std::unordered_map<std::wstring,double> _variables;
-        std::set<std::wstring> _allowedVariables;
-        std::set<std::wstring> _allowedFields;
+        std::unordered_map<std::string ,double> _variables;
+        std::set<std::string> _allowedVariables;
+        std::set<std::string> _allowedFields;
         IDataStructure *_data;
-        Scanner *_scanner;
-        Parser *_parser;
         Node *_root;
         bool throwsExceptionFromCalcValue;
         void checkVariablesAndFields() noexcept(false);
         void checkNode(Node *n) noexcept(false);
+        void limitDataNode(int quantity, Node *n);
 
         public:
         Formula();
-        explicit Formula(std::wstring permittedVariables[]);
-        Formula(std::wstring permittedVariables[], std::wstring permittedFields[]);
-        void setFormula(const std::wstring& formula) noexcept(false);
-        void setFormula(const std::string& formula);
-        void addVariable(const std::wstring& variableName, double initialValue);
-        double getVariableValue(const std::wstring& variableName) noexcept(false);
-        void updateVariable(const std::wstring& variableName, double value);
-        void addOneToVariable(const std::wstring& variableName);
+        explicit Formula(std::string *permittedVariables);
+        Formula(std::string *permittedVariables, std::string *permittedFields);
+        void setFormula(const std::string& formula) noexcept(false);
+        void addVariable(const std::string& variableName, double initialValue);
+        double getVariableValue(const std::string& variableName) noexcept(false);
+        void updateVariable(const std::string& variableName, double value);
+        void addOneToVariable(const std::string& variableName);
         void setData(IDataStructure *data);
-        void addField(const std::wstring& fieldName);
+        void limitDataIndexQuantity(int quantity);
+        void addField(const std::string& fieldName);
         double calculateValue();
         void enableExceptionsOnCalculateValue();
         void disableExceptionsOnCalculateValue();
         bool exceptionsOnCalculateValueEnabled() const;
-        std::wstring formulaToText();
+        std::string formulaToText();
         ~Formula();
     };
 } }

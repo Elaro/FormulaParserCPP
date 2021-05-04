@@ -24,7 +24,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
     enum UnaryFunctions
     {
-        Sin=3, Cos, Tan, Asin, Acos, Atan, Sinh, Cosh, Tanh, Log, Ln,  Sqrt, Ceil, Floor, Abs,  Negate, UUndefined
+        Sin, Cos, Tan, Asin, Acos, Atan, Sinh, Cosh, Tanh, Log, Ln,  Sqrt, Ceil, Floor, Abs,  Negate, UUndefined
     };
 
     enum BinaryFunctions
@@ -34,7 +34,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
     enum TernaryFunctions
     {
-        Sum=18, Mult, TUndefined
+        Sum, Mult, TUndefined
     };
 
     class JavalikeRandomNumberGenerator : std::default_random_engine
@@ -51,7 +51,7 @@ namespace ElaroSolutions { namespace DARFormula {
     {
         public:
         virtual double calcValue()=0;
-        virtual std::wstring toText()=0;
+        virtual std::string toText()=0;
         virtual NodeType getType()=0;
       //  std::unordered_map<std::string,double> getCurrentVariables();
         virtual ~Node() = 0;
@@ -71,18 +71,18 @@ namespace ElaroSolutions { namespace DARFormula {
         public:
         explicit ValueNode(double value);
         double calcValue() override;
-        std::wstring toText() override;
+        std::string toText() override;
     };
 
     class VariableNode : public SimpleNode
     {
-        std::unordered_map<std::wstring, double> *_variables;
-        std::wstring _variable;
+        std::unordered_map<std::string, double> *_variables;
+        std::string _variable;
 
         public:
-        VariableNode(std::wstring variable, std::unordered_map<std::wstring, double> *variables);
+        VariableNode(std::string variable, std::unordered_map<std::string, double> *variables);
         double calcValue() override;
-        std::wstring toText() override;
+        std::string toText() override;
 
         ~VariableNode() override;
     };
@@ -94,7 +94,7 @@ namespace ElaroSolutions { namespace DARFormula {
     public:
         RandomVariableNode();
         double calcValue() override;
-        std::wstring toText() override;
+        std::string toText() override;
     };
 
     class DataNode : public SimpleNode
@@ -102,14 +102,14 @@ namespace ElaroSolutions { namespace DARFormula {
         IDataStructure *_data{};
         std::vector<ElaroSolutions::DARFormula::Node*> _indexes;
         int * _indexTable;
-        std::wstring _field;
+        std::string _field;
 
         public:
-        DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::wstring field);
+        DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::string field);
         double calcValue() override;
-        std::wstring toText() override;
+        std::string toText() override;
         std::vector<ElaroSolutions::DARFormula::Node*> getIndexes();
-        std::wstring getField();
+        std::string getField();
 
         void setData(IDataStructure *data);
         ~DataNode() override;
@@ -120,6 +120,7 @@ namespace ElaroSolutions { namespace DARFormula {
         Node *_operand;
         public:
         NodeType getType() override;
+        Node * getOperand();
         static Node* UnaryNodeConstructor(Node *operand,UnaryFunctions op);
     };
 
@@ -129,6 +130,8 @@ namespace ElaroSolutions { namespace DARFormula {
 
         public:
         NodeType getType() override;
+        Node * getPreOperand();
+        Node * getPostOperand();
         static Node* BinaryNodeConstructor(Node *preoperand,Node *postoperand, BinaryFunctions op);
     };
 
@@ -138,7 +141,10 @@ namespace ElaroSolutions { namespace DARFormula {
         Node *_limit, *_formula;
         public:
         NodeType getType() override;
-        static Node* TernaryNodeConstructor(const std::wstring& countingVariable,Node *limit, Node *formula, TernaryFunctions op);
+        VariableNode * getCounter();
+        Node * getLimit();
+        Node * getFormula();
+        static Node* TernaryNodeConstructor(const std::string& countingVariable,Node *limit, Node *formula, TernaryFunctions op, std::unordered_map<std::string, double> *variables);
     };
 } }
 
