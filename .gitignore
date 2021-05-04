@@ -1,3 +1,6 @@
 /.vscode/*
 /CocoR/*
 /old/*
+/.idea/*
+/build/*
+/cmake-build-debug/*
