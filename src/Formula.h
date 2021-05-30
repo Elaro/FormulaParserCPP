@@ -19,7 +19,7 @@ namespace ElaroSolutions { namespace DARFormula {
         std::set<std::string> _allowedFields;
         IDataStructure *_data;
         Node *_root;
-        bool throwsExceptionFromCalcValue;
+        bool _throwsExceptionFromCalcValue;
         void checkVariablesAndFields() noexcept(false);
         void checkNode(Node *n) noexcept(false);
         void limitDataNode(int quantity, Node *n);

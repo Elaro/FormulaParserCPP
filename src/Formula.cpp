@@ -11,7 +11,7 @@ namespace ElaroSolutions { namespace DARFormula {
     {
         _data = nullptr;
         _root = nullptr;
-        throwsExceptionFromCalcValue = false;
+        _throwsExceptionFromCalcValue = false;
         addVariable("E",2.718281828459045);
         addVariable("PI",3.141592653589793);
         addVariable("PHI",1.618033988749895);
@@ -21,7 +21,7 @@ namespace ElaroSolutions { namespace DARFormula {
     {
         _data = nullptr;
         _root = nullptr;
-        throwsExceptionFromCalcValue = false;
+        _throwsExceptionFromCalcValue = false;
         addVariable("E",2.718281828459045);
         addVariable("PI",3.141592653589793);
         addVariable("PHI",1.618033988749895);
@@ -40,7 +40,7 @@ namespace ElaroSolutions { namespace DARFormula {
     {
         _data = nullptr;
         _root = nullptr;
-        throwsExceptionFromCalcValue = false;
+        _throwsExceptionFromCalcValue = false;
         addVariable("E",2.718281828459045);
         addVariable("PI",3.141592653589793);
         addVariable("PHI",1.618033988749895);
@@ -146,19 +146,29 @@ namespace ElaroSolutions { namespace DARFormula {
     }
 
     double Formula::calculateValue() {
-        return _root->calcValue();
+        double result=0.0;
+        try{
+            result = _root->calcValue();
+        } catch (std::exception &r)
+        {
+            if(_throwsExceptionFromCalcValue)
+                throw r;
+            else
+                return NAN;
+        }
+        return result;
     }
 
     void Formula::enableExceptionsOnCalculateValue() {
-        throwsExceptionFromCalcValue = true;
+        _throwsExceptionFromCalcValue = true;
     }
 
     void Formula::disableExceptionsOnCalculateValue() {
-        throwsExceptionFromCalcValue = false;
+        _throwsExceptionFromCalcValue = false;
     }
 
     bool Formula::exceptionsOnCalculateValueEnabled() const {
-        return throwsExceptionFromCalcValue;
+        return _throwsExceptionFromCalcValue;
     }
 
     std::string Formula::formulaToText() {

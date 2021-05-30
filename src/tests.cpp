@@ -8,6 +8,7 @@ using namespace ElaroSolutions::DARFormula;
 
 int main(int argc, char const *argv[]) {
     Formula first;
+    bool normalExceptionFlag= false;
     first.enableExceptionsOnCalculateValue();
     double value = NAN;
 
@@ -28,26 +29,21 @@ int main(int argc, char const *argv[]) {
     }
     std::cout << value <<std::endl;
 
+    try{first.setFormula("10a");}
+    catch(BadFormula &b)
+    {
+        std::cout << b.what() << std::endl;
+        normalExceptionFlag =true;
+    }
+    if(!normalExceptionFlag)
+    {
+        std::cout << first.formulaToText() << std::endl;
+        return 12;
+    }
+    normalExceptionFlag=false;
     std::cout << "----- Testing Decimal Value -----" << std::endl;
 
     try{first.setFormula("56.56");}
-    catch (std::exception& b)
-    {
-        std::cout << b.what() <<std::endl;
-        return 12;
-    }
-    value = NAN;
-    try{value = first.calculateValue();}
-    catch (std::exception &e)
-    {
-        std::cout << e.what() << std::endl;
-        return 13;
-    }
-    std::cout << value <<std::endl;
-
-    std::cout << "----- Testing Random Variable -----" << std::endl;
-
-    try{first.setFormula("r");}
     catch (std::exception& b)
     {
         std::cout << b.what() <<std::endl;
@@ -62,6 +58,36 @@ int main(int argc, char const *argv[]) {
     }
     std::cout << value <<std::endl;
 
+    try{first.setFormula("56.a56");}
+    catch(BadFormula &b)
+    {
+        std::cout << b.what() << std::endl;
+        normalExceptionFlag =true;
+    }
+    if(!normalExceptionFlag)
+    {
+        std::cout << first.formulaToText() << std::endl;
+        return 12;
+    }
+    normalExceptionFlag=false;
+
+    std::cout << "----- Testing Random Variable -----" << std::endl;
+
+    try{first.setFormula("r");}
+    catch (std::exception& b)
+    {
+        std::cout << b.what() <<std::endl;
+        return 30;
+    }
+    value = NAN;
+    try{value = first.calculateValue();}
+    catch (std::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+        return 31;
+    }
+    std::cout << value <<std::endl;
+
     std::cout << "----- Testing Variable -----" << std::endl;
     Formula second;
     second.enableExceptionsOnCalculateValue();
@@ -71,14 +97,14 @@ int main(int argc, char const *argv[]) {
     catch (std::exception& b)
     {
         std::cout << b.what() <<std::endl;
-        return 22;
+        return 40;
     }
     value = NAN;
     try{value = second.calculateValue();}
     catch (std::exception &e)
     {
         std::cout << e.what() << std::endl;
-        return 23;
+        return 41;
     }
     std::cout << value <<std::endl;
     try {
@@ -87,7 +113,7 @@ int main(int argc, char const *argv[]) {
     }catch (std::exception &e)
     {
         std::cout << e.what() << std::endl;
-        return 24;
+        return 42;
     }
     std::cout << value <<std::endl;
     return 0;
