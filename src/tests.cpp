@@ -5,17 +5,16 @@
 #include <iostream>
 
 using namespace ElaroSolutions::DARFormula;
-using namespace std;
 
 int main(int argc, char const *argv[]) {
     Formula first;
     first.enableExceptionsOnCalculateValue();
     double value = NAN;
 
-    std::cout << "----- Testing Integer Value -----" << endl;
+    std::cout << "----- Testing Integer Value -----" << std::endl;
 
     try{first.setFormula("10");}
-    catch (BadFormula& b)
+    catch (BadFormula &b)
     {
         std::cout << b.what() <<std::endl;
         return 10;
@@ -29,10 +28,10 @@ int main(int argc, char const *argv[]) {
     }
     std::cout << value <<std::endl;
 
-    std::cout << "----- Testing Decimal Value -----" << endl;
+    std::cout << "----- Testing Decimal Value -----" << std::endl;
 
     try{first.setFormula("56.56");}
-    catch (BadFormula& b)
+    catch (std::exception& b)
     {
         std::cout << b.what() <<std::endl;
         return 12;
@@ -46,10 +45,10 @@ int main(int argc, char const *argv[]) {
     }
     std::cout << value <<std::endl;
 
-    cout << "----- Testing Random Variable -----" << endl;
+    std::cout << "----- Testing Random Variable -----" << std::endl;
 
     try{first.setFormula("r");}
-    catch (BadFormula& b)
+    catch (std::exception& b)
     {
         std::cout << b.what() <<std::endl;
         return 20;
@@ -63,13 +62,13 @@ int main(int argc, char const *argv[]) {
     }
     std::cout << value <<std::endl;
 
-    cout << "----- Testing Variable -----" << endl;
+    std::cout << "----- Testing Variable -----" << std::endl;
     Formula second;
     second.enableExceptionsOnCalculateValue();
-    second.addVariable((wchar_t *)"Yay", 56.0);
+    second.addVariable("Yay", 56.0);
 
     try{second.setFormula("Yay");}
-    catch (BadFormula& b)
+    catch (std::exception& b)
     {
         std::cout << b.what() <<std::endl;
         return 22;
@@ -83,7 +82,7 @@ int main(int argc, char const *argv[]) {
     }
     std::cout << value <<std::endl;
     try {
-        second.addOneToVariable((wchar_t *)"Yay");
+        second.addOneToVariable("Yay");
         value = second.calculateValue();
     }catch (std::exception &e)
     {

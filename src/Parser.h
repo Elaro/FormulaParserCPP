@@ -13,17 +13,17 @@
 namespace ElaroSolutions{namespace DARFormula{
 
     class Parser {
-        static void parseFormula(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables);
-        static void parseExpression(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables);
-        static void parseTerm(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables);
-        static void parseFactor(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables);
-        static void parsePossiblyNegatedOperand(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables);
-        static void parseOperand(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables);
-        static void parseQuantity(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> it, std::unordered_map<std::wstring, double>* variables);
-        static void parseData(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token>> it, std::unordered_map<std::wstring, double>* variables);
+        static void parseFormula(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> &it, std::unordered_map<std::string, double> *variables);
+        static void parseExpression(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> &it, std::unordered_map<std::string, double> *variables);
+        static void parseTerm(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> &it, std::unordered_map<std::string, double> *variables);
+        static void parseFactor(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> &it, std::unordered_map<std::string, double> *variables);
+        static void parsePossiblyNegatedOperand(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> &it, std::unordered_map<std::string, double> *variables);
+        static void parseOperand(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> &it, std::unordered_map<std::string, double> *variables);
+        static void parseQuantity(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> &it, std::unordered_map<std::string, double> *variables);
+        static void parseData(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> &it, std::unordered_map<std::string, double> *variables);
     public:
-        static std::vector<Token> Tokenize(const std::wstring &formula);
-        static Node* Parse(std::vector<Token> tokens, std::unordered_map<std::wstring, double>* variables);
+        static std::vector<Token> Tokenize(const std::string &formula);
+        static Node* Parse(std::vector<Token> tokens, std::unordered_map<std::string, double> *variables);
     };
 
 }}

@@ -7,7 +7,8 @@
 
 #include <string>
 #include <cwchar>
-#include <map>
+
+#include "Nodes.h"
 
 
 
@@ -16,11 +17,15 @@ namespace ElaroSolutions{
 
         class Token {
             int _level;
-            std::wstring _value;
+            std::string _value;
+            UnaryFunctions _function;
+
         public:
-            explicit Token(std::wstring value, int level);
-            const std::wstring &getValue() const;
-            const int getLevel() const;
+            explicit Token(std::string value, int level);
+            Token(const Token& old);
+            const std::string &getValue() const;
+            int getLevel() const;
+            UnaryFunctions getFunction() const;
         };
 
 

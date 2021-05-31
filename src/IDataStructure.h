@@ -8,7 +8,7 @@ namespace ElaroSolutions { namespace DARFormula
     class IDataStructure
     {
         public:
-        virtual double getValueAt(int indexes[], std::wstring field)=0;
+        virtual double getValueAt(int indexes[], std::string field)=0;
     };
 } } // namespace ElaroSolutions::DARFormula
 
