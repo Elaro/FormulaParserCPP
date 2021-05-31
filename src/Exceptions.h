@@ -22,12 +22,14 @@ namespace ElaroSolutions { namespace DARFormula{
                 reinterpret_cast<const char *>(what_arg.c_str())){}
     };
 
-class UnknownCharacter : public std::runtime_error {
-public:
-    explicit UnknownCharacter(const std::string& what_arg) : std::runtime_error(
+    class UnknownCharacter : public std::runtime_error {
+        public:
+        explicit UnknownCharacter(const std::string& what_arg) : std::runtime_error(
             reinterpret_cast<const char *>(what_arg.c_str())
             ){}
 };
+
+
 } }
 
 #endif
