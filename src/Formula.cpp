@@ -17,51 +17,35 @@ namespace ElaroSolutions { namespace DARFormula {
         addVariable("PHI",1.618033988749895);
     }
 
-    Formula::Formula(std::string *permittedVariables)
+    void Formula::setUpFormula(std::string *allowedVariables, std::string *allowedFields, IDataStructure *data)
     {
-        _data = nullptr;
-        _root = nullptr;
-        _throwsExceptionFromCalcValue = false;
-        addVariable("E",2.718281828459045);
-        addVariable("PI",3.141592653589793);
-        addVariable("PHI",1.618033988749895);
-        for(int i=0;;i++)
+        if(allowedVariables != nullptr)
         {
-            try{
-                addVariable(permittedVariables[i],0.0);
-            } catch (std::out_of_range &oor)
+            for(int i=0;;i++)
             {
-                break;
+                try{
+                    addVariable(allowedVariables[i],0.0);
+                } catch (std::out_of_range &oor)
+                {
+                    break;
+                }
             }
         }
-    }
 
-    Formula::Formula(std::string permittedVariables[], std::string permittedFields[])
-    {
-        _data = nullptr;
-        _root = nullptr;
-        _throwsExceptionFromCalcValue = false;
-        addVariable("E",2.718281828459045);
-        addVariable("PI",3.141592653589793);
-        addVariable("PHI",1.618033988749895);
-        for(int i=0;;i++)
+        if(allowedFields != nullptr)
         {
-            try{
-                addVariable(permittedVariables[i],0.0);
-            } catch (std::out_of_range &oor)
+            for (int i = 0;; i++)
             {
-                break;
+                try
+                {
+                    addField(allowedFields[i]);
+                } catch (std::out_of_range &oor)
+                {
+                    break;
+                }
             }
         }
-        for(int i=0;;i++)
-        {
-            try{
-                addField(permittedFields[i]);
-            } catch (std::out_of_range &oor)
-            {
-                break;
-            }
-        }
+        setData(data);
     }
 
     void Formula::checkVariablesAndFields()
@@ -89,9 +73,9 @@ namespace ElaroSolutions { namespace DARFormula {
         else if (typeid(*n) == typeid(DataNode))
         {
             auto *d = (DataNode *)n;
-            for (unsigned int i = 0; i < d->getIndexes().size(); ++i)
+            for (auto index:d->getIndexes())
             {
-                checkNode(d->getIndexes().at(i));
+                checkNode(index);
             }
             if((_allowedFields.empty() && d->getField().empty())||_allowedFields.find(d->getField())!=_allowedFields.end())
             {
@@ -109,6 +93,7 @@ namespace ElaroSolutions { namespace DARFormula {
         _root = Parser::Parse(Parser::Tokenize(formula),&_variables);
 
         checkVariablesAndFields();
+        giveDataToDataNodes(_root);
     }
 
     void Formula::addVariable(const std::string& variableName, double initialValue)
@@ -217,9 +202,34 @@ namespace ElaroSolutions { namespace DARFormula {
         }
     }
 
+        void Formula::giveDataToDataNodes(Node *n)
+        {
+            if(typeid(*n) == typeid(DataNode))
+            {
+                auto d = (DataNode *)n;
+                d->setData(_data);
+                for(auto indexNode : d->getIndexes())
+                {
+                    giveDataToDataNodes(indexNode);
+                }
+            }
+            else if(n->getType()==Unary)
+            {
+                giveDataToDataNodes(((UnaryNode *)n)->getOperand());
+            }
+            else if(n->getType()==Binary)
+            {
+                giveDataToDataNodes(((BinaryNode *)n)->getPreOperand());
+                giveDataToDataNodes(((BinaryNode *)n)->getPostOperand());
+            }
+            else if(n->getType()==Ternary)
+            {
+                giveDataToDataNodes(((TernaryNode *)n)->getLimit());
+                giveDataToDataNodes(((TernaryNode *)n)->getFormula());
+            }
+        }
 
 
-
-} }
+    } }
 
 #endif

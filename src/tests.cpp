@@ -6,6 +6,28 @@
 
 using namespace ElaroSolutions::DARFormula;
 
+class MockData : public IDataStructure
+{
+    std::vector<std::vector<double>> _mock;
+public:
+    MockData() = default;
+
+    double getValueAt(int indexes[], std::string field) override
+    {
+        try{
+            return _mock.at(indexes[0]).at(indexes[1]);
+        }
+        catch(std::out_of_range &oor)
+        {
+            return NAN;
+        }
+    };
+    std::vector<std::vector<double>>* getMock()
+    {
+        return &_mock;
+    };
+};
+
 int main(int argc, char const *argv[]) {
     Formula first;
     bool normalExceptionFlag= false;
@@ -116,6 +138,26 @@ int main(int argc, char const *argv[]) {
         return 42;
     }
     std::cout << value <<std::endl;
+
+    std::cout << "----- Testing Data -----" << std::endl;
+    Formula third;
+    MockData data;
+    std::vector<double> vec1;
+    data.getMock()->push_back(vec1);
+    data.getMock()->at(0).push_back(56.56);
+    third.setUpFormula(nullptr,nullptr,&data);
+    third.setFormula("data[0][0][0]");
+    third.limitDataIndexQuantity(2);
+    value=-1.0;
+    try{
+        value = third.calculateValue();
+    } catch (std::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+        return 50;
+    }
+    std::cout << value << std::endl;
+
     return 0;
 }
 

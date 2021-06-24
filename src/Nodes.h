@@ -92,6 +92,8 @@ namespace ElaroSolutions { namespace DARFormula
         public:
             VariableNode(std::string variable, std::unordered_map<std::string, double> *variables);
 
+            std::unordered_map<std::string, double> * getVariables();
+
             double calcValue() override;
 
             std::string toText() override;
@@ -305,26 +307,128 @@ namespace ElaroSolutions { namespace DARFormula
 
     class BinaryNode : public Node
     {
+    protected:
         Node *_preoperand, *_postoperand;
 
         public:
+        explicit BinaryNode(Node * preoperand, Node * postoperand);
         NodeType getType() override;
         Node * getPreOperand();
         Node * getPostOperand();
         static Node* BinaryNodeConstructor(Node *preoperand,Node *postoperand, BinaryFunctions op);
     };
 
+    class EqualsNode : public BinaryNode
+    {
+
+
+    public:
+        explicit EqualsNode(Node* preoperand, Node* postoperand) : BinaryNode(preoperand,postoperand){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
+    class UnequalsNode : public BinaryNode
+    {
+    public:
+        explicit UnequalsNode(Node* preoperand, Node* postoperand) : BinaryNode(preoperand,postoperand){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
+    class GreaterNode : public BinaryNode
+    {
+    public:
+        explicit GreaterNode(Node* preoperand, Node* postoperand) : BinaryNode(preoperand,postoperand){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
+    class LesserNode : public BinaryNode
+    {
+    public:
+        explicit LesserNode(Node* preoperand, Node* postoperand) : BinaryNode(preoperand,postoperand){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
+    class PlusNode : public BinaryNode
+    {
+    public:
+        explicit PlusNode(Node* preoperand, Node* postoperand) : BinaryNode(preoperand,postoperand){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
+    class MinusNode : public BinaryNode
+    {
+    public:
+        explicit MinusNode(Node* preoperand, Node* postoperand) : BinaryNode(preoperand,postoperand){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
+    class TimesNode : public BinaryNode
+    {
+    public:
+        explicit TimesNode(Node* preoperand, Node* postoperand) : BinaryNode(preoperand,postoperand){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
+    class DivideNode : public BinaryNode
+    {
+    public:
+        explicit DivideNode(Node* preoperand, Node* postoperand) : BinaryNode(preoperand,postoperand){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
+    class ModuloNode : public BinaryNode
+    {
+    public:
+        explicit ModuloNode(Node* preoperand, Node* postoperand) : BinaryNode(preoperand,postoperand){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
+    class ExponentNode : public BinaryNode
+    {
+    public:
+        explicit ExponentNode(Node* preoperand, Node* postoperand) : BinaryNode(preoperand,postoperand){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
     class TernaryNode : public Node
     {
+    protected:
         VariableNode *_counter;
         Node *_limit, *_formula;
-        public:
+    public:
+        explicit TernaryNode(const std::string& countingVariable, Node* limit, Node* formula, std::unordered_map<std::string,double>* variables);
         NodeType getType() override;
         VariableNode * getCounter();
         Node * getLimit();
         Node * getFormula();
         static Node* TernaryNodeConstructor(const std::string& countingVariable,Node *limit, Node *formula, TernaryFunctions op, std::unordered_map<std::string, double> *variables);
     };
+
+    class SumNode : public TernaryNode
+    {
+    public:
+        explicit SumNode(const std::string &countingVariable, Node *limit, Node* formula, std::unordered_map<std::string,double>* variables) : TernaryNode(countingVariable,limit,formula,variables){}
+        double calcValue() override;
+        std::string toText() override;
+    };
+
+    class MultNode : public TernaryNode
+    {
+    public:
+        explicit MultNode(const std::string &countingVariable, Node *limit, Node* formula, std::unordered_map<std::string,double>* variables) : TernaryNode(countingVariable,limit,formula,variables){}
+        double calcValue() override;
+        std::string toText() override;
+        };
 } }
 
 #endif

@@ -82,8 +82,14 @@ namespace ElaroSolutions { namespace DARFormula {
         _variables = nullptr;
     }
 
-    DataNode::DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::string field)
+        std::unordered_map<std::string, double> *VariableNode::getVariables()
+        {
+            return _variables;
+        }
+
+        DataNode::DataNode(std::vector<ElaroSolutions::DARFormula::Node*> indexes, std::string field)
     {
+        _data = nullptr;
         _indexes = std::move(indexes);
         _field = std::move(field);
         _indexTable =new int[_indexes.size()];
@@ -198,7 +204,33 @@ namespace ElaroSolutions { namespace DARFormula {
         }
 
         Node *BinaryNode::BinaryNodeConstructor(Node *preoperand, Node *postoperand, BinaryFunctions op) {
-        return nullptr;
+        BinaryNode* construct = nullptr;
+        switch(op)
+        {
+            case Equals: construct = new EqualsNode(preoperand, postoperand);
+                break;
+            case Unequals: construct = new UnequalsNode(preoperand,postoperand);
+                break;
+            case Greater: construct = new GreaterNode(preoperand,postoperand);
+                break;
+            case Lesser: construct = new LesserNode(preoperand,postoperand);
+                break;
+            case Plus: construct = new PlusNode(preoperand,postoperand);
+                break;
+            case Minus: construct = new MinusNode(preoperand,postoperand);
+                break;
+            case Times: construct = new TimesNode(preoperand,postoperand);
+                break;
+            case Divide: construct = new DivideNode(preoperand,postoperand);
+                break;
+            case Modulo: construct = new ModuloNode(preoperand,postoperand);
+                break;
+            case Exponent: construct = new ExponentNode(preoperand,postoperand);
+                break;
+            case BUndefined:
+                throw std::runtime_error("Unsupported Binary Node construction");
+        }
+        return construct;
     }
 
     NodeType BinaryNode::getType() {
@@ -215,12 +247,31 @@ namespace ElaroSolutions { namespace DARFormula {
             return _postoperand;
         }
 
+        BinaryNode::BinaryNode(Node* preoperand, Node* postoperand)
+        {
+            _preoperand = preoperand;
+            _postoperand = postoperand;
+
+        }
+
         NodeType TernaryNode::getType() {
         return Ternary;
     }
 
     Node *TernaryNode::TernaryNodeConstructor(const std::string& countingVariable, Node *limit, Node *formula, TernaryFunctions op, std::unordered_map<std::string,double> *variables) {
-        return nullptr;
+        TernaryNode * construct = nullptr;
+        switch(op)
+        {
+            case Mult:
+                construct = new MultNode(countingVariable,limit,formula,variables);
+                break;
+            case Sum:
+                construct = new SumNode(countingVariable,limit,formula,variables);
+                break;
+            case TUndefined:
+                throw std::runtime_error("Unsupported Ternary Node construction");
+        }
+        return construct;
     }
 
     VariableNode *TernaryNode::getCounter()
@@ -236,6 +287,16 @@ namespace ElaroSolutions { namespace DARFormula {
         Node *TernaryNode::getFormula()
         {
             return _formula;
+        }
+
+        TernaryNode::TernaryNode(const std::string &countingVariable, Node *limit, Node *formula,
+                                 std::unordered_map<std::string, double> *variables)
+        {
+            if(variables->count(countingVariable)>0)
+                throw BadFormula("Invalid counting variable: "+countingVariable+" already in use");
+            _counter = new VariableNode(countingVariable,variables);
+            _limit = limit;
+            _formula = formula;
         }
 
         std::string RandomVariableNode::toText() {
@@ -408,6 +469,170 @@ namespace ElaroSolutions { namespace DARFormula {
         std::string NegateNode::toText()
         {
             return std::__cxx11::string("-("+_operand->toText()+")");
+        }
+
+        double SumNode::calcValue()
+        {
+            double lim = _limit->calcValue();
+            double result = 0.0;
+            _counter->getVariables()->emplace(_counter->toText(),0.0);
+            for(int i=1;i<=lim;i++)
+            {
+                _counter->getVariables()->at(_counter->toText())=(double)i;
+                result += _formula->calcValue();
+            }
+            _counter->getVariables()->erase(_counter->toText());
+            return result;
+        }
+
+        std::string SumNode::toText()
+        {
+            return std::__cxx11::string("sum("+_counter->toText()+","+_limit->toText()+","+_formula->toText()+")");
+        }
+
+        double MultNode::calcValue()
+        {
+            double lim = _limit->calcValue();
+            double result = 1.0;
+            _counter->getVariables()->emplace(_counter->toText(),0.0);
+            for(int i=1;i<=lim;i++)
+            {
+                _counter->getVariables()->at(_counter->toText())=(double)i;
+                result *= _formula->calcValue();
+            }
+        }
+
+        std::string MultNode::toText()
+        {
+            return std::__cxx11::string("mult("+_counter->toText()+","+_limit->toText()+","+_formula->toText()+")"););
+        }
+
+        double EqualsNode::calcValue()
+        {
+            double cache_pre = _preoperand->calcValue();
+            double cache_post = _postoperand->calcValue();
+            if(fabs(cache_pre-cache_post)<PRECISION)
+                return 1.0;
+            else return 0.0;
+        }
+
+        std::string EqualsNode::toText()
+        {
+            return std::__cxx11::string("("+_preoperand->toText()+"="+_postoperand->toText()+")");
+        }
+
+        double UnequalsNode::calcValue()
+        {
+            double cache_pre = _preoperand->calcValue();
+            double cache_post = _postoperand->calcValue();
+            if(fabs(cache_pre-cache_post)<PRECISION)
+                return 0.0;
+            else return 1.0;
+        }
+
+        std::string UnequalsNode::toText()
+        {
+            return std::__cxx11::string("("+_preoperand->toText()+"!="+_postoperand->toText()+")");
+        }
+
+        double GreaterNode::calcValue()
+        {
+            double cache_pre = _preoperand->calcValue();
+            double cache_post = _postoperand->calcValue();
+            if(fabs(cache_pre-cache_post)<PRECISION)
+                return 0.0;
+            else return cache_pre>cache_post?1.0:0.0;
+        }
+
+        std::string GreaterNode::toText()
+        {
+            return std::__cxx11::string("("+_preoperand->toText()+">"+_postoperand->toText()+")");
+        }
+
+        double LesserNode::calcValue()
+        {
+            double cache_pre = _preoperand->calcValue();
+            double cache_post = _postoperand->calcValue();
+            if(fabs(cache_pre-cache_post)<PRECISION)
+                return 0.0;
+            else return cache_pre<cache_post?1.0:0.0;
+        }
+
+        std::string LesserNode::toText()
+        {
+            return std::__cxx11::string("("+_preoperand->toText()+">"+_postoperand->toText()+")");
+        }
+
+        double PlusNode::calcValue()
+        {
+            double cache_pre = _preoperand->calcValue();
+            double cache_post = _postoperand->calcValue();
+            return cache_pre+cache_post;
+        }
+
+        std::string PlusNode::toText()
+        {
+            return std::__cxx11::string("("+_preoperand->toText()+"+"+_postoperand->toText()+")");
+        }
+
+        double MinusNode::calcValue()
+        {
+            double cache_pre = _preoperand->calcValue();
+            double cache_post = _postoperand->calcValue();
+            return cache_pre-cache_post;
+        }
+
+        std::string MinusNode::toText()
+        {
+            return std::__cxx11::string("("+_preoperand->toText()+"-"+_postoperand->toText()+")");
+        }
+
+        double TimesNode::calcValue()
+        {
+            double cache_pre = _preoperand->calcValue();
+            double cache_post = _postoperand->calcValue();
+            return cache_pre*cache_post;
+        }
+
+        std::string TimesNode::toText()
+        {
+            return std::__cxx11::string("("+_preoperand->toText()+"*"+_postoperand->toText()+")");
+        }
+
+        double DivideNode::calcValue()
+        {
+            double cache_pre = _preoperand->calcValue();
+            double cache_post = _postoperand->calcValue();
+            return cache_pre/cache_post;
+        }
+
+        std::string DivideNode::toText()
+        {
+            return std::__cxx11::string("("+_preoperand->toText()+"/"+_postoperand->toText()+")");
+        }
+
+        double ModuloNode::calcValue()
+        {
+            double cache_pre = _preoperand->calcValue();
+            double cache_post = _postoperand->calcValue();
+            return std::fmod(cache_pre,cache_post);
+        }
+
+        std::string ModuloNode::toText()
+        {
+            return std::__cxx11::string("("+_preoperand->toText()+"%"+_postoperand->toText()+")");
+        }
+
+        double ExponentNode::calcValue()
+        {
+            double cache_pre = _preoperand->calcValue();
+            double cache_post = _postoperand->calcValue();
+            return pow(cache_pre,cache_post);
+        }
+
+        std::string ExponentNode::toText()
+        {
+            return std::__cxx11::string("("+_preoperand->toText()+"^"+_postoperand->toText()+")");
         }
     } }
 

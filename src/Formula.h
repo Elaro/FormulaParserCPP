@@ -23,17 +23,17 @@ namespace ElaroSolutions { namespace DARFormula {
         void checkVariablesAndFields() noexcept(false);
         void checkNode(Node *n) noexcept(false);
         void limitDataNode(int quantity, Node *n);
+        void giveDataToDataNodes(Node *n);
+        void setData(IDataStructure* data);
 
         public:
         Formula();
-        explicit Formula(std::string *permittedVariables);
-        Formula(std::string *permittedVariables, std::string *permittedFields);
+        void setUpFormula(std::string* allowedVariables, std::string* allowedFields, IDataStructure* data);
         void setFormula(const std::string& formula) noexcept(false);
         void addVariable(const std::string& variableName, double initialValue);
         double getVariableValue(const std::string& variableName) noexcept(false);
         void updateVariable(const std::string& variableName, double value);
         void addOneToVariable(const std::string& variableName);
-        void setData(IDataStructure *data);
         void limitDataIndexQuantity(int quantity);
         void addField(const std::string& fieldName);
         double calculateValue();
