@@ -7,6 +7,7 @@
 namespace ElaroSolutions{namespace DARFormula{
     std::vector<Token> ElaroSolutions::DARFormula::Parser::Tokenize(const std::string &formula) {
         std::vector<Token> formulaTokens;
+        formulaTokens.reserve(formula.size());
         if(formula.empty())
         {
             formulaTokens.emplace_back("End of Formula",8);
@@ -18,10 +19,10 @@ namespace ElaroSolutions{namespace DARFormula{
             if(isdigit(current)||current=='.')
             {
                 //Make a number token
-                size_t j;
+                size_t j=1;
                 for(j=1;i+j<formula.size() && (isdigit(formula.at(i+j))||formula.at(i+j)=='.');++j)
                 {}
-                formulaTokens.emplace_back(formula.substr(i,i+j),0);
+                formulaTokens.emplace_back(formula.substr(i,j),0);
                 i+=j-1;
             }
             else if(isalpha(current)||current=='_')
@@ -287,7 +288,7 @@ namespace ElaroSolutions{namespace DARFormula{
         void Parser::parseData(Node *&e, __gnu_cxx::__normal_iterator<Token *, std::vector<Token, std::allocator<Token>>> &it, std::unordered_map<std::string, double> *variables) {
         std::vector<Node *> indexes;
         std::string fieldName;
-        Node * i;
+        Node * i= nullptr;
         ++it;
         if(it->getValue()!="[")
             throw BadFormula("Missing left bracket after data declaration");
@@ -297,18 +298,21 @@ namespace ElaroSolutions{namespace DARFormula{
         if(it->getValue()!="]")
             throw BadFormula("Missing right bracket after data declaration");
         indexes.emplace_back(i);
-        while(it->getValue()=="[")
+        //Example: data[0][0][0] : we are now on the first ']', so the next token must be evaluated without incrementing
+        //the iterator, because no parseSomething function must consume more than the tokens it needs
+        while(it[1].getValue()=="[")
         {
+            ++it;
             ++it;
             parseFormula(i,it,variables);
             ++it;
             if(it->getValue()!="]")
                 throw BadFormula("Missing right bracket after data declaration");
             indexes.emplace_back(i);
-            ++it;
         }
-        if(it->getValue()==":")
+        if(it[1].getValue()==":")
         {
+            ++it;
             ++it;
             fieldName = it->getValue();
         }
