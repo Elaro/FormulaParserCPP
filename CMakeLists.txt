@@ -14,6 +14,6 @@ add_executable(FormulaParserCPP
         src/Nodes.h
         src/Parser.cpp
         src/Parser.h
-        src/tests.cpp
+        Tests/tests_SimpleNode.cpp
         src/Token.cpp
         src/Token.h)

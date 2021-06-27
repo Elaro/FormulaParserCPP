@@ -103,12 +103,13 @@ namespace ElaroSolutions { namespace DARFormula {
     double DataNode::calcValue()
     {
         unsigned int indexQuantity = _indexes.size();
+        double value= NAN;
 
         for(unsigned int i=0;i<indexQuantity;++i)
         {
             _indexTable[i]=(int)std::round(_indexes.at(i)->calcValue());
         }
-        double value=_data->getValueAt(_indexTable,_field);
+        value=_data->getValueAt(_indexTable,_field);
 
         return value;
     }
@@ -318,7 +319,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string SinNode::toText()
         {
-            return std::__cxx11::string("sin("+_operand->toText()+")");
+            return std::string("sin("+_operand->toText()+")");
         }
 
         double CosNode::calcValue()
@@ -328,7 +329,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string CosNode::toText()
         {
-            return std::__cxx11::string("cos("+_operand->toText()+")");
+            return std::string("cos("+_operand->toText()+")");
         }
 
         double TanNode::calcValue()
@@ -338,7 +339,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string TanNode::toText()
         {
-            return std::__cxx11::string("tan("+_operand->toText()+")");
+            return std::string("tan("+_operand->toText()+")");
         }
 
         double AsinNode::calcValue()
@@ -348,7 +349,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string AsinNode::toText()
         {
-            return std::__cxx11::string("asin("+_operand->toText()+")");
+            return std::string("asin("+_operand->toText()+")");
         }
 
         double AcosNode::calcValue()
@@ -358,7 +359,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string AcosNode::toText()
         {
-            return std::__cxx11::string("acos("+_operand->toText()+")");
+            return std::string("acos("+_operand->toText()+")");
         }
 
         double AtanNode::calcValue()
@@ -368,7 +369,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string AtanNode::toText()
         {
-            return std::__cxx11::string("atan("+_operand->toText()+")");
+            return std::string("atan("+_operand->toText()+")");
         }
 
         double SinhNode::calcValue()
@@ -378,7 +379,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string SinhNode::toText()
         {
-            return std::__cxx11::string("sinh("+_operand->toText()+")");
+            return std::string("sinh("+_operand->toText()+")");
         }
 
         double CoshNode::calcValue()
@@ -388,7 +389,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string CoshNode::toText()
         {
-            return std::__cxx11::string("cosh("+_operand->toText()+")");
+            return std::string("cosh("+_operand->toText()+")");
         }
 
         double TanhNode::calcValue()
@@ -398,7 +399,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string TanhNode::toText()
         {
-            return std::__cxx11::string("tanh("+_operand->toText()+")");
+            return std::string("tanh("+_operand->toText()+")");
         }
 
         double LogNode::calcValue()
@@ -408,7 +409,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string LogNode::toText()
         {
-            return std::__cxx11::string("log("+_operand->toText()+")");
+            return std::string("log("+_operand->toText()+")");
         }
 
         double LnNode::calcValue()
@@ -418,7 +419,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string LnNode::toText()
         {
-            return std::__cxx11::string("ln("+_operand->toText()+")");
+            return std::string("ln("+_operand->toText()+")");
         }
 
         double SqrtNode::calcValue()
@@ -428,7 +429,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string SqrtNode::toText()
         {
-            return std::__cxx11::string("sqrt("+_operand->toText()+")");
+            return std::string("sqrt("+_operand->toText()+")");
         }
 
         double CeilNode::calcValue()
@@ -438,7 +439,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string CeilNode::toText()
         {
-            return std::__cxx11::string("ceil("+_operand->toText()+")");
+            return std::string("ceil("+_operand->toText()+")");
         }
 
         double FloorNode::calcValue()
@@ -448,7 +449,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string FloorNode::toText()
         {
-            return std::__cxx11::string("floor("+_operand->toText()+")");
+            return std::string("floor("+_operand->toText()+")");
         }
 
         double AbsNode::calcValue()
@@ -458,7 +459,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string AbsNode::toText()
         {
-            return std::__cxx11::string("abs("+_operand->toText()+")");
+            return std::string("abs("+_operand->toText()+")");
         }
 
         double NegateNode::calcValue()
@@ -468,7 +469,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string NegateNode::toText()
         {
-            return std::__cxx11::string("-("+_operand->toText()+")");
+            return std::string("-("+_operand->toText()+")");
         }
 
         double SumNode::calcValue()
@@ -487,7 +488,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string SumNode::toText()
         {
-            return std::__cxx11::string("sum("+_counter->toText()+","+_limit->toText()+","+_formula->toText()+")");
+            return std::string("sum("+_counter->toText()+","+_limit->toText()+","+_formula->toText()+")");
         }
 
         double MultNode::calcValue()
@@ -500,11 +501,12 @@ namespace ElaroSolutions { namespace DARFormula {
                 _counter->getVariables()->at(_counter->toText())=(double)i;
                 result *= _formula->calcValue();
             }
+            return result;
         }
 
         std::string MultNode::toText()
         {
-            return std::__cxx11::string("mult("+_counter->toText()+","+_limit->toText()+","+_formula->toText()+")"););
+            return std::string("mult("+_counter->toText()+","+_limit->toText()+","+_formula->toText()+")");
         }
 
         double EqualsNode::calcValue()
@@ -518,7 +520,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string EqualsNode::toText()
         {
-            return std::__cxx11::string("("+_preoperand->toText()+"="+_postoperand->toText()+")");
+            return std::string("("+_preoperand->toText()+"="+_postoperand->toText()+")");
         }
 
         double UnequalsNode::calcValue()
@@ -532,7 +534,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string UnequalsNode::toText()
         {
-            return std::__cxx11::string("("+_preoperand->toText()+"!="+_postoperand->toText()+")");
+            return std::string("("+_preoperand->toText()+"!="+_postoperand->toText()+")");
         }
 
         double GreaterNode::calcValue()
@@ -546,7 +548,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string GreaterNode::toText()
         {
-            return std::__cxx11::string("("+_preoperand->toText()+">"+_postoperand->toText()+")");
+            return std::string("("+_preoperand->toText()+">"+_postoperand->toText()+")");
         }
 
         double LesserNode::calcValue()
@@ -560,7 +562,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string LesserNode::toText()
         {
-            return std::__cxx11::string("("+_preoperand->toText()+">"+_postoperand->toText()+")");
+            return std::string("("+_preoperand->toText()+">"+_postoperand->toText()+")");
         }
 
         double PlusNode::calcValue()
@@ -572,43 +574,43 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string PlusNode::toText()
         {
-            return std::__cxx11::string("("+_preoperand->toText()+"+"+_postoperand->toText()+")");
+            return std::string("("+_preoperand->toText()+"+"+_postoperand->toText()+")");
         }
 
         double MinusNode::calcValue()
         {
             double cache_pre = _preoperand->calcValue();
             double cache_post = _postoperand->calcValue();
-            return cache_pre-cache_post;
+            return cache_pre-cache_post<PRECISION?0.0:cache_pre-cache_post;
         }
 
         std::string MinusNode::toText()
         {
-            return std::__cxx11::string("("+_preoperand->toText()+"-"+_postoperand->toText()+")");
+            return std::string("("+_preoperand->toText()+"-"+_postoperand->toText()+")");
         }
 
         double TimesNode::calcValue()
         {
             double cache_pre = _preoperand->calcValue();
             double cache_post = _postoperand->calcValue();
-            return cache_pre*cache_post;
+            return cache_pre<PRECISION?0.0:cache_pre*cache_post;
         }
 
         std::string TimesNode::toText()
         {
-            return std::__cxx11::string("("+_preoperand->toText()+"*"+_postoperand->toText()+")");
+            return std::string("("+_preoperand->toText()+"*"+_postoperand->toText()+")");
         }
 
         double DivideNode::calcValue()
         {
             double cache_pre = _preoperand->calcValue();
             double cache_post = _postoperand->calcValue();
-            return cache_pre/cache_post;
+            return cache_post<PRECISION?throw DivisionByZero():cache_pre/cache_post;
         }
 
         std::string DivideNode::toText()
         {
-            return std::__cxx11::string("("+_preoperand->toText()+"/"+_postoperand->toText()+")");
+            return std::string("("+_preoperand->toText()+"/"+_postoperand->toText()+")");
         }
 
         double ModuloNode::calcValue()
@@ -620,7 +622,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string ModuloNode::toText()
         {
-            return std::__cxx11::string("("+_preoperand->toText()+"%"+_postoperand->toText()+")");
+            return std::string("("+_preoperand->toText()+"%"+_postoperand->toText()+")");
         }
 
         double ExponentNode::calcValue()
@@ -632,7 +634,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
         std::string ExponentNode::toText()
         {
-            return std::__cxx11::string("("+_preoperand->toText()+"^"+_postoperand->toText()+")");
+            return std::string("("+_preoperand->toText()+"^"+_postoperand->toText()+")");
         }
     } }
 

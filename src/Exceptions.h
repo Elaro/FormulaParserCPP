@@ -27,9 +27,12 @@ namespace ElaroSolutions { namespace DARFormula{
         explicit UnknownCharacter(const std::string& what_arg) : std::runtime_error(
             reinterpret_cast<const char *>(what_arg.c_str())
             ){}
+    };
+
+class DivisionByZero : public std::runtime_error {
+public:
+    explicit DivisionByZero() : std::runtime_error("Division by zero"){}
 };
-
-
 } }
 
 #endif
