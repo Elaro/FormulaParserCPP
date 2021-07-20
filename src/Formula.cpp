@@ -136,10 +136,10 @@ namespace ElaroSolutions { namespace DARFormula {
             result = _root->calcValue();
         } catch (std::exception &r)
         {
-            if(_throwsExceptionFromCalcValue)
-                throw r;
-            else
+            if (!_throwsExceptionFromCalcValue)
                 return NAN;
+            else
+             throw;
         }
         return result;
     }

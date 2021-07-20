@@ -6,9 +6,6 @@
 #include <utility>
 
 namespace ElaroSolutions { namespace DARFormula {
-   /* std::unordered_map<std::string, double> Node::getCurrentVariables()
-    {
-    }*/
 
     JavalikeRandomNumberGenerator * JavalikeRandomNumberGenerator::_r = nullptr;
 
@@ -49,7 +46,10 @@ namespace ElaroSolutions { namespace DARFormula {
         return std::to_string(_value);
     }
 
-    VariableNode::VariableNode(std::string variable, std::unordered_map<std::string, double> *variables)
+        ValueNode::~ValueNode()
+        = default;
+
+        VariableNode::VariableNode(std::string variable, std::unordered_map<std::string, double> *variables)
     {
         _variable = std::move(variable);
         _variables = variables;
@@ -92,7 +92,7 @@ namespace ElaroSolutions { namespace DARFormula {
         _data = nullptr;
         _indexes = std::move(indexes);
         _field = std::move(field);
-        _indexTable =new int[_indexes.size()];
+        _indexTable = new int[_indexes.size()];
     }
 
     void DataNode::setData(IDataStructure *data)
@@ -140,6 +140,7 @@ namespace ElaroSolutions { namespace DARFormula {
 
     DataNode::~DataNode()
     {
+            _data = nullptr;
         for(auto & _index : _indexes)
         {
             delete _index;
@@ -204,6 +205,11 @@ namespace ElaroSolutions { namespace DARFormula {
             _operand = operand;
         }
 
+        UnaryNode::~UnaryNode()
+        {
+            delete _operand;
+        }
+
         Node *BinaryNode::BinaryNodeConstructor(Node *preoperand, Node *postoperand, BinaryFunctions op) {
         BinaryNode* construct = nullptr;
         switch(op)
@@ -252,7 +258,12 @@ namespace ElaroSolutions { namespace DARFormula {
         {
             _preoperand = preoperand;
             _postoperand = postoperand;
+        }
 
+        BinaryNode::~BinaryNode()
+        {
+            delete _preoperand;
+            delete _postoperand;
         }
 
         NodeType TernaryNode::getType() {
@@ -300,6 +311,13 @@ namespace ElaroSolutions { namespace DARFormula {
             _formula = formula;
         }
 
+        TernaryNode::~TernaryNode()
+        {
+            delete _limit;
+            delete _counter;
+            delete _formula;
+        }
+
         std::string RandomVariableNode::toText() {
         return std::string("r");
     }
@@ -312,6 +330,10 @@ namespace ElaroSolutions { namespace DARFormula {
         _rng = JavalikeRandomNumberGenerator::getJRNG();
     }
 
+    RandomVariableNode::~RandomVariableNode()
+    {
+            _rng = nullptr;
+    }
         double SinNode::calcValue()
         {
             return sin(_operand->calcValue());
@@ -501,6 +523,7 @@ namespace ElaroSolutions { namespace DARFormula {
                 _counter->getVariables()->at(_counter->toText())=(double)i;
                 result *= _formula->calcValue();
             }
+            _counter->getVariables()->erase(_counter->toText());
             return result;
         }
 
