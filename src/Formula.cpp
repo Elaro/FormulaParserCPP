@@ -55,34 +55,63 @@ namespace ElaroSolutions { namespace DARFormula {
 
     void Formula::checkNode(Node *n)
     {
-        if (typeid(*n) == typeid(VariableNode))
+        switch(n->getType())
         {
-            if (n->toText()=="r")
+            case Simple:
             {
-                return;
-            }
-            else
-            {
-                if(_allowedVariables.find(n->toText())!=_allowedVariables.end())
+                if (typeid(*n) == typeid(VariableNode))
                 {
-                   return;
+                    if(_allowedVariables.find(n->toText())!=_allowedVariables.end())
+                    {
+                        return;
+                    }
+                    throw UnexpectedVariable("Unsupported variable : " + (n->toText()));
+
                 }
-                throw UnexpectedVariable("Unsupported variable : " + (n->toText()));
+                else if (typeid(*n) == typeid(DataNode))
+                {
+                    auto *d = (DataNode *)n;
+                    for (auto index:d->getIndexes())
+                    {
+                        checkNode(index);
+                    }
+                    if((_allowedFields.empty() && d->getField().empty())||_allowedFields.find(d->getField())!=_allowedFields.end())
+                    {
+                        return;
+                    }
+                    throw UnexpectedVariable("Unsupported field : " + d->getField());
+                }
             }
-        }
-        else if (typeid(*n) == typeid(DataNode))
-        {
-            auto *d = (DataNode *)n;
-            for (auto index:d->getIndexes())
+            break;
+            case Unary:
             {
-                checkNode(index);
+                checkNode(((UnaryNode *)n)->getOperand());
             }
-            if((_allowedFields.empty() && d->getField().empty())||_allowedFields.find(d->getField())!=_allowedFields.end())
+            break;
+            case Binary:
             {
-               return;
+                checkNode(((BinaryNode*)n)->getPreOperand());
+                checkNode(((BinaryNode*)n)->getPostOperand());
             }
-            throw UnexpectedVariable("Unsupported field : " + d->getField());
+            break;
+            case Ternary:
+            {
+                checkNode(((TernaryNode*)n)->getLimit());
+                if(_allowedVariables.find(((TernaryNode*)n)->getCounter()->toText())!=_allowedVariables.end())
+                {
+                    throw UnexpectedVariable("Counting variable "+((TernaryNode*)n)->getCounter()->toText()+ " already in use");
+                }
+                else
+                {
+                    _allowedVariables.insert(((TernaryNode*)n)->getCounter()->toText());
+                }
+                checkNode(((TernaryNode*)n)->getFormula());
+                _allowedVariables.erase(((TernaryNode*)n)->getCounter()->toText());
+            }
+            break;
+            default:return;
         }
+
     }
 
     void Formula::setFormula(const std::string& formula)
