@@ -82,6 +82,8 @@ namespace ElaroSolutions { namespace DARFormula
             double calcValue() override;
 
             std::string toText() override;
+
+            ~ValueNode() override;
         };
 
         class VariableNode : public SimpleNode
@@ -111,6 +113,8 @@ namespace ElaroSolutions { namespace DARFormula
             double calcValue() override;
 
             std::string toText() override;
+
+            ~RandomVariableNode() override;
         };
 
         class DataNode : public SimpleNode
@@ -147,6 +151,7 @@ namespace ElaroSolutions { namespace DARFormula
             Node *getOperand();
 
             static Node *UnaryNodeConstructor(Node *operand, UnaryFunctions op);
+            ~UnaryNode();
         };
 
         class SinNode : public UnaryNode
@@ -316,6 +321,7 @@ namespace ElaroSolutions { namespace DARFormula
         Node * getPreOperand();
         Node * getPostOperand();
         static Node* BinaryNodeConstructor(Node *preoperand,Node *postoperand, BinaryFunctions op);
+        ~BinaryNode();
     };
 
     class EqualsNode : public BinaryNode
@@ -412,6 +418,7 @@ namespace ElaroSolutions { namespace DARFormula
         Node * getLimit();
         Node * getFormula();
         static Node* TernaryNodeConstructor(const std::string& countingVariable,Node *limit, Node *formula, TernaryFunctions op, std::unordered_map<std::string, double> *variables);
+        ~TernaryNode();
     };
 
     class SumNode : public TernaryNode

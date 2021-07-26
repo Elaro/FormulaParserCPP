@@ -15,4 +15,5 @@ add_library(FormulaParserCPP SHARED
         src/Parser.cpp
         src/Parser.h
         src/Token.cpp
-        src/Token.h)
+        src/Token.h
+        )
