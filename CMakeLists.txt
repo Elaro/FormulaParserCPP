@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(src)
 
-add_executable(FormulaParserCPP
+add_library(FormulaParserCPP SHARED
         src/Exceptions.h
         src/Formula.cpp
         src/Formula.h
@@ -14,6 +14,5 @@ add_executable(FormulaParserCPP
         src/Nodes.h
         src/Parser.cpp
         src/Parser.h
-        Tests/tests_SimpleNode.cpp
         src/Token.cpp
         src/Token.h)
