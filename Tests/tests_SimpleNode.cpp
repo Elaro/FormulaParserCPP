@@ -9,7 +9,7 @@
 using namespace ElaroSolutions::DARFormula;
 
 
-int main(int argc, char const *argv[]) {
+int simpleNodeTests() {
     Formula first;
     bool normalExceptionFlag= false;
     first.enableExceptionsOnCalculateValue();
