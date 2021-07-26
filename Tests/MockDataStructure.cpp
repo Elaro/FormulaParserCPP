@@ -55,3 +55,17 @@ double MockDataStructure::getValueAt(int *indexes, std::string field) {
         throw ElaroSolutions::DARFormula::UnreachableDataPoint("field not implemented");
     }
 }
+
+MockDataStructure::~MockDataStructure() {
+    for(auto n : _namedData)
+    {
+        n.clear();
+    }
+    for(auto s: _someData)
+    {
+        s.clear();
+    }
+    _namedData.clear();
+    _someData.clear();
+
+}
