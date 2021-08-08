@@ -20,6 +20,7 @@ namespace ElaroSolutions { namespace DARFormula {
         IDataStructure *_data;
         Node *_root;
         bool _throwsExceptionFromCalcValue;
+
         void checkVariablesAndFields() noexcept(false);
         void checkNode(Node *n) noexcept(false);
         void limitDataNode(int quantity, Node *n);
@@ -28,17 +29,19 @@ namespace ElaroSolutions { namespace DARFormula {
 
         public:
         Formula();
-        void setUpFormula(std::string* allowedVariables, std::string* allowedFields, IDataStructure* data);
-        void setFormula(const std::string& formula) noexcept(false);
+        Formula* setUpFormula(std::initializer_list<std::string> allowedVariables,
+                              std::initializer_list<std::string> allowedFields,
+                              IDataStructure* data);
+        Formula* setFormula(const std::string& formula) noexcept(false);
         void addVariable(const std::string& variableName, double initialValue);
         double getVariableValue(const std::string& variableName) noexcept(false);
-        void updateVariable(const std::string& variableName, double value);
-        void addOneToVariable(const std::string& variableName);
-        void limitDataIndexQuantity(int quantity);
+        Formula* updateVariable(const std::string& variableName, double value);
+        Formula* addOneToVariable(const std::string& variableName);
+        Formula* limitDataIndexQuantity(int quantity);
         void addField(const std::string& fieldName);
         double calculateValue();
-        void enableExceptionsOnCalculateValue();
-        void disableExceptionsOnCalculateValue();
+        Formula* enableExceptionsOnCalculateValue();
+        Formula* disableExceptionsOnCalculateValue();
         bool exceptionsOnCalculateValueEnabled() const;
         std::string formulaToText();
         ~Formula();

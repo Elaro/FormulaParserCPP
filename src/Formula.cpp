@@ -17,35 +17,21 @@ namespace ElaroSolutions { namespace DARFormula {
         addVariable("PHI",1.618033988749895);
     }
 
-    void Formula::setUpFormula(std::string *allowedVariables, std::string *allowedFields, IDataStructure *data)
-    {
-        if(allowedVariables != nullptr)
+    Formula *Formula::setUpFormula(std::initializer_list<std::string> allowedVariables,
+                                   std::initializer_list<std::string> allowedFields, IDataStructure *data) {
+
+        for(const std::string &variable : allowedVariables)
         {
-            for(int i=0;;i++)
-            {
-                try{
-                    addVariable(allowedVariables[i],0.0);
-                } catch (std::out_of_range &oor)
-                {
-                    break;
-                }
-            }
+            addVariable(variable,0.0);
         }
 
-        if(allowedFields != nullptr)
+        for(const std::string &field: allowedFields)
         {
-            for (int i = 0;; i++)
-            {
-                try
-                {
-                    addField(allowedFields[i]);
-                } catch (std::out_of_range &oor)
-                {
-                    break;
-                }
-            }
+            addField(field);
         }
+
         setData(data);
+        return this;
     }
 
     void Formula::checkVariablesAndFields()
@@ -114,15 +100,15 @@ namespace ElaroSolutions { namespace DARFormula {
 
     }
 
-    void Formula::setFormula(const std::string& formula)
+    Formula* Formula::setFormula(const std::string& formula)
     {
-
         delete _root;
 
         _root = Parser::Parse(Parser::Tokenize(formula),&_variables);
 
         checkVariablesAndFields();
         giveDataToDataNodes(_root);
+        return this;
     }
 
     void Formula::addVariable(const std::string& variableName, double initialValue)
@@ -141,14 +127,16 @@ namespace ElaroSolutions { namespace DARFormula {
         return _variables.at(variableName);
     }
 
-    void Formula::updateVariable(const std::string& variableName, double value)
+    Formula* Formula::updateVariable(const std::string& variableName, double value)
     {
         _variables.at(variableName)=value;
+        return this;
     }
 
-    void Formula::addOneToVariable(const std::string& variableName)
+    Formula* Formula::addOneToVariable(const std::string& variableName)
     {
         _variables.at(variableName)++;
+        return this;
     }
 
     void Formula::setData(IDataStructure *data) {
@@ -173,12 +161,14 @@ namespace ElaroSolutions { namespace DARFormula {
         return result;
     }
 
-    void Formula::enableExceptionsOnCalculateValue() {
+    Formula* Formula::enableExceptionsOnCalculateValue() {
         _throwsExceptionFromCalcValue = true;
+        return this;
     }
 
-    void Formula::disableExceptionsOnCalculateValue() {
+    Formula* Formula::disableExceptionsOnCalculateValue() {
         _throwsExceptionFromCalcValue = false;
+        return this;
     }
 
     bool Formula::exceptionsOnCalculateValueEnabled() const {
@@ -195,10 +185,10 @@ namespace ElaroSolutions { namespace DARFormula {
 
     }
 
-    void Formula::limitDataIndexQuantity(int quantity)
+    Formula* Formula::limitDataIndexQuantity(int quantity)
     {
         limitDataNode(quantity,_root);
-
+        return this;
     }
 
     void Formula::limitDataNode(int quantity, Node *n)
@@ -257,6 +247,8 @@ namespace ElaroSolutions { namespace DARFormula {
                 giveDataToDataNodes(((TernaryNode *)n)->getFormula());
             }
         }
+
+
 
 
     } }

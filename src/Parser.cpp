@@ -87,11 +87,18 @@ namespace ElaroSolutions{namespace DARFormula{
         Node *Parser::Parse(std::vector<Token> tokens, std::unordered_map<std::string, double> *variables) {
             Node* root= nullptr;
             auto it = tokens.begin();
-            parseFormula(root, it, variables);
+            try{
+                parseFormula(root, it, variables);
+            } catch (BadFormula &b)
+            {
+                delete root;
+                throw;
+            }
             ++it;
             if(it->getLevel()!=8)
             {
                 std::string badToken = it->getValue();
+                delete root;
                 throw BadFormula("Expected end of formula, instead got : "+badToken);
             }
             return root;

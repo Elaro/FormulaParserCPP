@@ -10,6 +10,7 @@ namespace ElaroSolutions { namespace DARFormula
     {
         public:
         virtual double getValueAt(int indexes[], std::string field)=0;
+        virtual ~IDataStructure()=0;
     };
 
     class UnreachableDataPoint : public std::out_of_range
