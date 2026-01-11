@@ -1,6 +1,6 @@
 # Formula Parser
 
-This library is intended to be used as part of a digital asset creation program (either as an internal element or as part of a plugin). It provides the ability for a user to use mathematical formulas to define a part, or the whole, of the asset's data points (such as notes in a MIDI file, vertex positions in a 3D model, bone position in an animation, etc). 
+This library is intended to be used as part of a digital asset creation program (either as an internal element or as part of a plugin). It provides the ability for a user to use mathematical formulas to define a part, or the whole, of the asset's data points (such as notes in a MIDI file, vertex positions in a 3D model, joint positions and/or bone orientations in an animation, etc). 
 
 The functionality is provided in the Formula class. It can parse a given string containing a mathematical expression into a calculable in-memory AST, keep track of the variables available to that expression and their values, update those values, and calculate that expression using them. The goal is to be able to evaluate that expression for many different values as fast as possible.
 
