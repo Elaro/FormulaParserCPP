@@ -6,9 +6,16 @@ The functionality is provided in the Formula class. It can parse a given string 
 
 ## Features
 
-**Expanded set of binary arithmetic operators**: Adds comparative operators. A comparative operator gives 1 if the comparison is true and 0 if it isn't.
+**Expanded set of binary arithmetic operators**: Adds comparative operators. A comparative operator gives 1 if the comparison is true and 0 if it isn't. It has the lowest operator priority; it is calculated after additions and substractions.
+    
+   *Examples*:
+     1>1 equals 0. 1>0 equals 1. 3>1+2 equals 0, but (3>1)+2 equals 3.
 
-**Access to an indexable numeric data structure through the data[] operator**: A Formula can use numbers from any indexable data structure (with constant dimensions) as operands using the data[] operator. It will read the value stored at the index(es) equal to the value(s) of the expression(s) contained within the brackets.     
+**Access to an indexable numeric data structure through the data[] operator**: A Formula can refer to operands from a referenced data structure (whose class inherits IDataStructure) using the data[] operator. It will read the value stored at the index(es) equal to the value(s) of the expression(s) contained within the brackets. 
+
+  *Examples*:
+    data[3+5] would try to read the number stored at index 8 in the referenced data structure. data[3+5][10/2] would try to read the  
+  
 
 **Configurable variable set**: The developer using this library can define which variables are
 
