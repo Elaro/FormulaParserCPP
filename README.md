@@ -29,4 +29,8 @@ sin(), cos(), tan(), asin(), acos(), atan(), sinh(), cosh(), tanh(), log(), ln()
 
 sum(), mult()
 
+# TODO
+
+Implement an option to calculate values without going through function reference pointers.
+
 ## To Do
